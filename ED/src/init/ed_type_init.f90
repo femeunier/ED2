@@ -84,7 +84,7 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
        cpatch%leaf_psi      (  ico) = 0.
        cpatch%wood_psi      (  ico) = 0.
 
-   case (-1,-2,1,2)
+   case (-1,-2,-3,1,2,3)
        ! start the water potential with ~-0.1MPa, assuming the plant is under
        ! well-watered conditions
        cpatch%leaf_psi      (  ico) = -10. - cpatch%hite(ico) ! in m

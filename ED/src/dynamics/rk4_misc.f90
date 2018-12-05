@@ -930,7 +930,7 @@ subroutine update_diagnostic_vars(initp, csite,ipa)
    ! before updating temperatures, we need to update heat capacity if we are
    ! tracking plant hydraulics and heat capacity changes
    select case (plant_hydro_scheme)
-   case (1,2)
+   case (1,2,3)
        do ico=1, cpatch%ncohorts
        ! in order to reduce dependencies and speed up calculation
        ! Here we do not call calc_veg_hcap. Instead, we calcualte the changes of

@@ -776,7 +776,7 @@ module rk4_driver
          ! change leaf/wood heat capacity, which will be used later 
          !---------------------------------------------------------------------------------!
          select case (plant_hydro_scheme)
-         case (-2,-1,1,2)
+         case (-3,-2,-1,1,2,3)
              ! Need to update leaf_water_int and wood_water_int 
              cpatch%leaf_water_int(ico) = sngloff( initp%leaf_water_int(ico)               &
                                                  / dble(cpatch%nplant(ico)),tiny_offset)

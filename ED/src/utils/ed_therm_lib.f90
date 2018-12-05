@@ -82,7 +82,7 @@ module ed_therm_lib
       !------------------------------------------------------------------------------------!
 
       select case (plant_hydro_scheme)
-      case (-2,-1,0)
+      case (-3,-2,-1,0)
           ! original ED-2.2
           ! No plant hydraulics
           !------------------------------------------------------------------------------------!
@@ -111,7 +111,7 @@ module ed_therm_lib
           leaf_hcap = nplant * C2B * bleaf * spheat_leaf * (1. + wat_dry_ratio_grn (pft))
           wood_hcap = nplant * C2B * bwood * spheat_wood * (1. + wat_dry_ratio_ngrn(pft))
           !------------------------------------------------------------------------------------!
-      case (1,2)
+      case (1,2,3)
           ! with plant hydraulics
           !------------------------------------------------------------------------------------!
           !    Here we decide whether we compute the branch heat capacity or not.              !

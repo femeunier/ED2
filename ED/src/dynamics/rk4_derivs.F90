@@ -1933,7 +1933,7 @@ subroutine canopy_derivs_two(mzg,initp,dinitp,csite,ipa,hflxsc,wflxsc,qwflxsc,hf
           ! leaf/wood energy
           dinitp%leaf_water_int(ico) = 0.d0
           dinitp%wood_water_int(ico) = 0.d0
-      case (-2,-1,1,2)
+      case (-3,-2,-1,1,2,3)
           ! with plant hydraulics, consider changes in leaf_hcap
 
           ! first deal with water

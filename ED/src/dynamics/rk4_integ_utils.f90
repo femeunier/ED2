@@ -827,7 +827,7 @@ subroutine get_yscal(y,dy,htry,yscal,cpatch)
            yscal%leaf_water_int(ico)    = huge_offset
            yscal%wood_water_int(ico)    = huge_offset
        enddo
-   case (-2,-1,1,2)
+   case (-3,-2,-1,1,2,3)
        ! We do track plant hydraulics
        ! calculate the scale simiarly to leaf/wood energy
        do ico=1,cpatch%ncohorts

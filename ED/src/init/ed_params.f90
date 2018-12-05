@@ -3369,7 +3369,8 @@ subroutine init_pft_hydro_params()
                              , stoma_lambda                 & ! intent(out)
                              , stoma_beta                   & ! intent(out)
                              , stoma_psi_b                  & ! intent(out)
-                             , stoma_psi_c                  ! ! intent(out)
+                             , stoma_psi_c                  & ! intent(out)
+			     ,is_liana			    ! ! intent(out) 
 
    implicit none
    !- Local Variables  ---------------------------------------!
@@ -3531,6 +3532,37 @@ subroutine init_pft_hydro_params()
         wood_Kexp(ipft)      = 4.
 
       enddo
+
+     case(-3,3) ! Erase liana Hydraulic properties (Long Meta-analysis) 
+      DO ipft = 1, n_pft
+
+       ! Félicien 01/08
+       IF (is_liana(ipft)) THEN
+        leaf_water_cap(ipft) = (exp(0.58-0.63*log( 1000 /(C2B* SLA(ipft)))))/ MPa2m ! kg/kg/m
+        wood_water_cap(ipft) = exp(6.25 -3.76*rho(ipft) + 1.07)/ MPa2m    / (rho(ipft) * 1.e3) !kg/kg/m
+
+
+        leaf_psi_tlp(ipft)   = ((-3.66 + 1.68) + (0.46-0.53) * log(SLA(ipft)) - 0.8 * log(rho(ipft))) * MPa2m ! [m]
+
+        wood_psi50(ipft)     = (-(7.11*rho(ipft))**0.63 + (0.00011+0.00026)*3000.)*MPa2m ! [m] Assuming MAP=3000
+        wood_Kmax(ipft)      = (exp(1.84 -2.61*rho(ipft) + (0.081 - 0.68)*log(3000.) + 6.09))/ MPa2m ! [kg/m/s/m] Assuming MAP=3000
+
+        wood_Kexp(ipft)      = 4. * -wood_psi50(ipft)/ MPa2m *(29*(-wood_psi50(ipft)/ MPa2m)**-0.93 + (0.005 -0.024)*3000. + 33.24) ! Assuming MAP=3000
+
+        ! Copied from wat_dry_ratio_grn and wat_dry_ratio_ngrn
+        leaf_water_sat(ipft) = 1.85
+        wood_water_sat(ipft) = 0.7
+
+        ! Set some rwc_min so that psi_min makes sense
+        leaf_rwc_min(ipft) = 0.5
+        wood_rwc_min(ipft) = 0.05
+
+	PRINT*,'Liana hydraulic properties erased'       
+	PRINT*, leaf_water_cap(ipft),wood_water_cap(ipft),leaf_psi_tlp(ipft),wood_Kmax(ipft),wood_psi50(ipft),wood_Kexp(ipft)
+
+       END IF
+      END DO
+       
        
 
 

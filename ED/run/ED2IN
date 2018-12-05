@@ -32,7 +32,7 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMONTHA  = 01
    NL%IDATEA   = 01
-   NL%IYEARA   = 1996
+   NL%IYEARA   = 1700
    NL%ITIMEA   = 0000
    !---------------------------------------------------------------------------------------!
 
@@ -158,8 +158,8 @@ $ED_NL
    !            soil types                                                                 !
    !---------------------------------------------------------------------------------------!
     NL%N_POI    =    1
-    NL%POI_LAT  =  35.5
-    NL%POI_LON  = -79.0
+    NL%POI_LAT  =    5 
+    NL%POI_LON  =  -53
     NL%POI_RES  = 1.00   
    !---------------------------------------------------------------------------------------!
 
@@ -183,7 +183,7 @@ $ED_NL
 
 
 
-   !---------------------------------------------------------------------------------------!
+  !---------------------------------------------------------------------------------------!
    ! ED2 File output.  For all the variables 0 means no output and 3 means HDF5 output.    !
    !                                                                                       !
    ! IFOUTPUT -- Fast analysis.  These are mostly polygon-level averages, and the time     !
@@ -249,7 +249,7 @@ $ED_NL
    !                    will compromise I/O performance significantly.                     !
    !                    0 = no metadata, 1 = attach metadata                               !
    !---------------------------------------------------------------------------------------!
-   NL%ATTACH_METADATA = 1
+   NL%ATTACH_METADATA = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -268,7 +268,7 @@ $ED_NL
    !                                                                                       !
    !---------------------------------------------------------------------------------------!
    NL%UNITFAST   = 0
-   NL%UNITSTATE  = 1
+   NL%UNITSTATE  = 2
    !---------------------------------------------------------------------------------------!
 
 
@@ -283,7 +283,7 @@ $ED_NL
    !                         Multiple timepoints should not be used in the history files   !
    !                         if you intend to use these for HISTORY runs.                  !
    !---------------------------------------------------------------------------------------!
-   NL%OUTFAST    = -1
+   NL%OUTFAST    = 0
    NL%OUTSTATE   = 0
    !---------------------------------------------------------------------------------------!
 
@@ -307,8 +307,8 @@ $ED_NL
    ! SFILOUT -- Path and prefix for history files.                                         !
    !---------------------------------------------------------------------------------------!
 
-   NL%FFILOUT = '/mypath/generic-prefix'
-   NL%SFILOUT = '/mypath/generic-prefix'
+   NL%FFILOUT = './analy/paracou'
+   NL%SFILOUT = './histo/paracou'
 
    !---------------------------------------------------------------------------------------!
 
@@ -361,7 +361,7 @@ $ED_NL
    !
    !
    !---------------------------------------------------------------------------------------!
-   NL%IED_INIT_MODE   = 3
+   NL%IED_INIT_MODE   = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -389,8 +389,7 @@ $ED_NL
    !              from the same simulation.                                                !
    !---------------------------------------------------------------------------------------!
 
-   NL%SFILIN   = '/n/gstore/Labs/moorcroft_data_protected/mlongo/data/ed2_data/site_bio_data/s67_default.'
-
+   NL%SFILIN   = './histo/paracou'
    !---------------------------------------------------------------------------------------!
 
 
@@ -453,7 +452,7 @@ $ED_NL
    !   6 -- sandy clay loam     |  12 -- peat                                              !
    !---------------------------------------------------------------------------------------!
 
-   NL%NSLCON   = 11      ! Default soil type if ISOILFLG = 2 (choices below:)
+   NL%NSLCON   = 16      ! Default soil type if ISOILFLG = 2 (choices below:)
 
    !---------------------------------------------------------------------------------------!
 
@@ -487,7 +486,7 @@ $ED_NL
    ! the default in ED-2.1.                                                                !
    !---------------------------------------------------------------------------------------!
 
-   NL%ISOILCOL  = 21
+   NL%ISOILCOL  = 14
    !---------------------------------------------------------------------------------------!
 
 
@@ -503,8 +502,9 @@ $ED_NL
    !     They are used only when ISOILFLG is 2, both values are between 0. and 1., and     !
    ! theira sum doesn't exceed 1.  Otherwise standard ED values will be used instead.      !
    !---------------------------------------------------------------------------------------!
-   NL%SLXCLAY = 0.68
-   NL%SLXSAND = 0.20
+   NL%SLXCLAY = 0.562 ! When I ran ED for Paracou, I set to these numbers, to be sort of
+   NL%SLXSAND = 0.345 ! the average sand/clay content I found in Bonal et al. (2008)
+                      ! I got the impression soil texture is highly variable there though
    !---------------------------------------------------------------------------------------!
 
 
@@ -524,9 +524,12 @@ $ED_NL
    !               2 = porosity (saturation)                                               !
    ! STGOFF  - initial temperature offset (soil temperature = air temperature + offset)    !
    !---------------------------------------------------------------------------------------!
-   NL%SLZ     =  -2.307, -1.789, -1.340, -0.961, -0.648, -0.400, -0.215, -0.089, -0.020
-   NL%SLMSTR  =   1.00,   1.00,   1.00,   1.00,   1.00,   1.00,   1.00,   1.00,   1.00
-   NL%STGOFF  =   0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.00
+   NL%SLZ     =   -8.000,-6.959,-5.995,-5.108,-4.296,-3.560,-2.897,-2.307,-1.789,-1.340,
+                  -0.961,-0.648,-0.400,-0.215,-0.089,-0.020
+   NL%SLMSTR  =    1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,
+                   1.000, 1.000, 1.000, 1.000, 1.000, 1.000
+   NL%STGOFF  =    0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+                   0.000, 0.000, 0.000, 0.000, 0.000, 0.000
    !---------------------------------------------------------------------------------------!
 
 
@@ -549,20 +552,18 @@ $ED_NL
    !                      not cold deciduous).                                             !
    !  ED_MET_DRIVER_DB -- File containing information for meteorological driver            !
    !                      instructions (the "header" file).                                !
-   !  OBSTIME_DB       -- File containing times of desired IOOUTPUT                        !            
    !  SOILSTATE_DB     -- Dataset in case you want to provide the initial conditions of    !
    !                      soil temperature and moisture.                                   !
    !  SOILDEPTH_DB     -- Dataset in case you want to read in soil depth information.      !
    !---------------------------------------------------------------------------------------!
-   NL%VEG_DATABASE      = '/n/gstore/Labs/moorcroft_lab_protected/data/ed2_data/oge2OLD/OGE2_'
-   NL%SOIL_DATABASE     = '/n/gstore/Labs/moorcroft_lab_protected/data/ed2_data/soil_ed22/Quesada+RADAM+IGBP/Quesada+RADAM+IGBP_'
-   NL%LU_DATABASE       = '/n/home00/mlongo/protected/scenarios/glu-3.3.1+sa1.bau/one/glu-3.3.1+sa1.bau-'
+   NL%VEG_DATABASE     = '/home/femeunier/Documents/raw_inputED/OGE2/OGE2_'
+   NL%SOIL_DATABASE    = '/home/femeunier/Documents/raw_inputED/FAO/FAO_'
+   NL%LU_DATABASE       = ''
    NL%PLANTATION_FILE   = ''
-   NL%THSUMS_DATABASE   = '/n/gstore/Labs/moorcroft_lab_protected/data/ed2_data/ed_inputs/'
-   NL%ED_MET_DRIVER_DB  = '/n/gstore/Labs/moorcroft_lab_protected/mlongo/data/ed2_data/met_driver/wmo+eft/eft/Santarem_Km67/Santarem_Km67_HEADER'
-   NL%OBSTIME_DB        = '' !Reference file: /ED/run/obstime_template.time
-   NL%SOILSTATE_DB      = '/n/gstore/Labs/moorcroft_lab_protected/data/ed2_data/ed_inputs/STW1996OCT.dat'
-   NL%SOILDEPTH_DB      = '/n/gstore/Labs/moorcroft_lab_protected/data/ed2_data/ed_inputs/soil_depths.dat'
+   NL%THSUMS_DATABASE   = '/home/femeunier/Documents/raw_inputED/thermal_sums/'
+   NL%ED_MET_DRIVER_DB = '/home/femeunier/Documents/data/met/BCI/BCI_DRIVER_HEADER'
+   NL%SOILSTATE_DB      = ''
+   NL%SOILDEPTH_DB      = ''
    !---------------------------------------------------------------------------------------!
 
 
@@ -735,7 +736,7 @@ $ED_NL
    !                  small classes ("saplings") and large classes ("trees"), like in Cole !
    !                  and Ewel (2006).                                                     !
    !---------------------------------------------------------------------------------------!
-   NL%IALLOM          = 0
+   NL%IALLOM          = 3
    !---------------------------------------------------------------------------------------!
 
 
@@ -955,8 +956,10 @@ $ED_NL
    !                           Christofferson et al. 2016 GMD                              !
    !                        2. Track plant hydrodynamics using parameters from             !
    !                           Xu et al. 2016 New Phytologist                              !
+   !                        3 Liana hydraulic parameters erased			           !
    !                       -1. Same as 1 but leaf/wood heat capacity does not change       !
    !                       -2. Same as 2 but leaf/wood heat capacity does not change       !
+   !                       -3. Same as 3 but leaf/wood heat capacity does not change       !
    !---------------------------------------------------------------------------------------!
    NL%PLANT_HYDRO_SCHEME   = 0
    !---------------------------------------------------------------------------------------!
@@ -1326,7 +1329,7 @@ $ED_NL
    ! 7 - southern pines                   | 17 - "Araucaria" (non-optimised                !
    ! 8 - late conifers                    |      Southern Pines).                          !
    !---------------------------------------------------------------------------------------!
-   NL%INCLUDE_THESE_PFT = 5,6,7,8,9,10,11
+   NL%INCLUDE_THESE_PFT = 2,3,4,17
    NL%AGRI_STOCK        = 5
    NL%PLANTATION_STOCK  = 6
    !---------------------------------------------------------------------------------------!
@@ -1371,7 +1374,6 @@ $ED_NL
    !                   Notice that if the cohorts are too different, then the actual       !
    !                   number of cohorts in a patch may exceed MAXCOHORT.                  !
    ! MIN_SITE_AREA  -- This is the minimum fraction area of a given soil type that allows  !
-   !                   a site to be created (ignored if IED_INIT_MODE is set to 3).        !
    ! MIN_PATCH_AREA -- This is the minimum fraction area of a given soil type that allows  !
    !                   a site to be created (ignored if IED_INIT_MODE is set to 3).        !
    !---------------------------------------------------------------------------------------!
@@ -1410,7 +1412,7 @@ $ED_NL
    !                              TREEFALL_DISTURBANCE_RATE is internally adjusted so the  !
    !                              average patch age is still 1/TREEFALL_DISTURBANCE_RATE   !
    !---------------------------------------------------------------------------------------!
-   NL%TREEFALL_DISTURBANCE_RATE  = 0.0
+   NL%TREEFALL_DISTURBANCE_RATE  = 0.0125
    NL%TIME2CANOPY                = 0
    !---------------------------------------------------------------------------------------!
 
@@ -1510,9 +1512,16 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMETTYPE    = 1
    NL%ISHUFFLE    = 0
-   NL%METCYC1     = 1998
-   NL%METCYCF     = 2005
-   NL%IMETAVG     = 1
+   NL%METCYC1     = 2003 ! This should always be the first and last year of the met driver
+   NL%METCYCF     = 2016 !    I think you are using the data I sent for 2004-2012, right?
+   NL%IMETAVG     = 1    ! If you are using the met driver I prepared, then the averages
+                         !    end at the reference time.  This setting is extremely 
+                         !    important for any new met driver you eventually use, if
+                         !    this variable is not properly set, you may get some weird
+                         !    diurnal cycle for radiation, and possibly get numerical
+                         !    instabilities.  Instabilities near sunrise/sunset times 
+                         !    are strong indicators that this variable is not properly set.
+                         !    This would not cause the crash you got, though.
    NL%IMETRAD     = 2
    NL%INITIAL_CO2 = 370
    !---------------------------------------------------------------------------------------!
@@ -1616,7 +1625,7 @@ $ED_NL
    !                > 0.  Keep the patch with the provided index.  In case the index is    !
    !                      not valid, the model will crash.                                 !
    !---------------------------------------------------------------------------------------!
-   NL%IDETAILED  = 63
+   NL%IDETAILED  = 32
    NL%PATCH_KEEP = 0
    !---------------------------------------------------------------------------------------!
 

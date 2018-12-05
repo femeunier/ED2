@@ -45,10 +45,10 @@ BASE=$(ED_ROOT)/build/
 
 USE_HDF5=1
 
-HDF5_HOME=/usr
-HDF5_INCS=-I${HDF5_HOME}/include
-HDF5C_INCS=-I${HDF5_HOME}/include
-HDF5_LIBS=-lhdf5 -lhdf5_fortran -lhdf5_hl -lz
+HDF5_HOME=/home/femeunier/Downloads/HDF5_new
+HDF5_INCS=-I/home/femeunier/Downloads/HDF5_new/include
+HDF5C_INCS=-I/home/femeunier/Downloads/HDF5_new/include
+HDF5_LIBS=-lm -lz -L/home/femeunier/Downloads/HDF5_new/lib -lhdf5 -lhdf5_fortran -lhdf5_hl
 
 USE_COLLECTIVE_MPIO=0
  

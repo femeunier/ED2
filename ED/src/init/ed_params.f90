@@ -3371,7 +3371,7 @@ subroutine init_pft_hydro_params()
                              , stoma_psi_b                  & ! intent(out)
                              , stoma_psi_c                  & ! intent(out)
 			     , is_liana			    & ! intent(out) 
-			     , include_these_pft		
+			     , include_pft		
 
    implicit none
    !- Local Variables  ---------------------------------------!
@@ -3537,7 +3537,7 @@ subroutine init_pft_hydro_params()
      ! Félicien 01/08
      case(-3,3) ! Erase liana Hydraulic properties (Long Meta-analysis) 
       do ipft = 1, n_pft
-	if (include_these_pft(ipft)) then
+	if (include_pft(ipft)) then
 	print*,'Liana hydraulic properties before erasing'   
 	print*, leaf_water_cap(ipft),wood_water_cap(ipft),leaf_psi_tlp(ipft),wood_Kmax(ipft),wood_psi50(ipft),wood_Kexp(ipft)
 

@@ -305,8 +305,8 @@ $ED_NL
    ! SFILOUT -- Path and prefix for history files.                                         !
    !---------------------------------------------------------------------------------------!
 
-   NL%FFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/analy/paracou' ! To avoid files beginning with dash
-   NL%SFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/histo/paracou'
+   NL%FFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/analy/bci' ! To avoid files beginning with dash
+   NL%SFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/histo/bci'
 
    !---------------------------------------------------------------------------------------!
 

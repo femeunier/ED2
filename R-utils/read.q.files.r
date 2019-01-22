@@ -76,9 +76,10 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       h5file       = datum$input[m]
       h5file.bz2   = paste(datum$input[m],"bz2",sep=".")
       h5file.gz    = paste(datum$input[m],"gz" ,sep=".")
-      if (file.exists(h5file)){
-         mymont    = hdf5load(file=h5file,load=FALSE,verbosity=0,tidy=TRUE)
 
+      if (file.exists(h5file)){
+         mymont    = lapply(h5read_opt(h5file),FUN=aperm)
+         names(mymont) <- gsub(x = names(mymont), pattern = "\\_", replacement = ".") 
       }else if(file.exists(h5file.bz2)){
          temp.file = file.path(tempdir(),basename(h5file))
          dummy     = bunzip2(filename=h5file.bz2,destname=temp.file,remove=FALSE)
@@ -294,8 +295,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       emean$nep             [m] =   mymont$MMEAN.NEP.PY
       emean$nee             [m] =   mymont$MMEAN.CARBON.ST.PY - mymont$MMEAN.CARBON.AC.PY
       emean$plant.resp      [m] =   mymont$MMEAN.PLRESP.PY
-      emean$growth.resp     [m] =   mymont$MMEAN.GROWTH.RESP.PY
-      emean$storage.resp    [m] =   mymont$MMEAN.STORAGE.RESP.PY
+      emean$growth.resp     [m] =   mymont$MMEAN.ROOT.GROWTH.RESP.PY
+      emean$storage.resp    [m] =   mymont$MMEAN.ROOT.STORAGE.RESP.PY
       emean$assim.light     [m] =   mymont$MMEAN.A.LIGHT.PY
       emean$assim.rubp      [m] =   mymont$MMEAN.A.RUBP.PY
       emean$assim.co2       [m] =   mymont$MMEAN.A.CO2.PY
@@ -634,11 +635,11 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
 
 
       #----- Disturbance rates. -----------------------------------------------------------#
-      lu$dist  [m,,] = apply ( X      = mymont$DISTURBANCE.RATES
-                             , MARGIN = c(2,3)
-                             , FUN    = weighted.mean
-                             , w      = areasi
-                             )#end apply
+    #  lu$dist  [m,,] = apply ( X      = mymont$DISTURBANCE.RATES
+    #                         , MARGIN = c(2,3)
+    #                         , FUN    = weighted.mean
+    #                         , w      = areasi
+    #                         )#end apply
 #                             browser()
       #------------------------------------------------------------------------------------#
 
@@ -800,8 +801,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
             #    Get storage and growth respiration, which will be distributed amongst     #
             # tissues.                                                                     #
             #------------------------------------------------------------------------------#
-            growth.respconow  = mymont$MMEAN.GROWTH.RESP.CO
-            storage.respconow = mymont$MMEAN.STORAGE.RESP.CO
+            growth.respconow  = mymont$MMEAN.ROOT.GROWTH.RESP.CO
+            storage.respconow = mymont$MMEAN.ROOT.STORAGE.RESP.CO
             #------------------------------------------------------------------------------#
 
 
@@ -1148,8 +1149,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
                cbalightconow     = mymont$CB.LIGHTMAX[thismonth]
                cbamoistconow     = mymont$CB.MOISTMAX[thismonth]
             }else{
-               cbalightconow     = mymont$CB.LIGHTMAX[,thismonth]
-               cbamoistconow     = mymont$CB.MOISTMAX[,thismonth]
+               cbalightconow     = (mymont$CB.LIGHTMAX)[,thismonth]
+               cbamoistconow     = (mymont$CB.MOISTMAX)[,thismonth]
             }#end if
             #------------------------------------------------------------------------------#
          }#end if
@@ -1366,20 +1367,20 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
             phap.leaf.gsaconow = mean(mymont$QMEAN.LEAF.GSW.CO  [phap])
             phap.can.shv.conow = rep(mean(mymont$QMEAN.CAN.SHV.PA[phap]),times=ncohorts)
          }else{
-            phap.lparconow     = rowMeans(mymont$QMEAN.PAR.L.CO     [,phap])
-            phap.ltempconow    = rowMeans(mymont$QMEAN.LEAF.TEMP.CO [,phap])
-            phap.lwaterconow   = rowMeans(mymont$QMEAN.LEAF.WATER.CO[,phap])
-            phap.lvpdconow     = rowMeans(mymont$QMEAN.LEAF.VPDEF.CO[,phap])
-            phap.fs.openconow  = rowMeans(mymont$QMEAN.FS.OPEN.CO   [,phap])
-            phap.lpsiconow     = rowMeans(mymont$QMEAN.TRANSP.CO    [,phap])
-            phap.leaf.gbaconow = rowMeans(mymont$QMEAN.LEAF.GBW.CO  [,phap])
-            phap.leaf.gsaconow = rowMeans(mymont$QMEAN.LEAF.GSW.CO  [,phap])
+            phap.lparconow     = rowMeans((mymont$QMEAN.PAR.L.CO)     [,phap])
+            phap.ltempconow    = rowMeans((mymont$QMEAN.LEAF.TEMP.CO) [,phap])
+            phap.lwaterconow   = rowMeans((mymont$QMEAN.LEAF.WATER.CO)[,phap])
+            phap.lvpdconow     = rowMeans((mymont$QMEAN.LEAF.VPDEF.CO)[,phap])
+            phap.fs.openconow  = rowMeans((mymont$QMEAN.FS.OPEN.CO)   [,phap])
+            phap.lpsiconow     = rowMeans((mymont$QMEAN.TRANSP.CO)    [,phap])
+            phap.leaf.gbaconow = rowMeans((mymont$QMEAN.LEAF.GBW.CO) [,phap])
+            phap.leaf.gsaconow = rowMeans((mymont$QMEAN.LEAF.GSW.CO)  [,phap])
             if (one.patch){
                phap.can.shv.conow = rep( x     = mean(mymont$QMEAN.CAN.SHV.PA[phap])
                                        , times = ncohorts
                                        )#end rep
             }else{
-               phap.can.shv.conow = rep( x     = rowMeans(mymont$QMEAN.CAN.SHV.PA[,phap])
+               phap.can.shv.conow = rep( x     = rowMeans((mymont$QMEAN.CAN.SHV.PA)[,phap])
                                        , times = ncohorts
                                        )#end rep
             }#end if

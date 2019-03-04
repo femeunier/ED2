@@ -724,15 +724,28 @@ module fuse_fiss_utils
                   !    the DBH.                                                            !
                   ! 6. Both cohorts must have the same recruitment status with respect to  !
                   !    the census.                                                         !
-                  ! 7. Both cohorts must have the same phenology status.                   !
+                  ! 7. Both cohorts must have the same phenology status.      		   !             
+		  ! 8. If lianas, height must be the same	(1m tolerance)   	   !
                   !------------------------------------------------------------------------!
-                  if (     cpatch%pft(donc)              == cpatch%pft(recc)               &
+		  
+                  if (    ( cpatch%pft(donc)              == cpatch%pft(recc)              &
                      .and. lai_max                        < lai_fuse_tol*tolerance_mult    &
                      .and. cpatch%first_census(donc)     == cpatch%first_census(recc)      &
                      .and. cpatch%new_recruit_flag(donc) == cpatch%new_recruit_flag(recc)  &
                      .and. cpatch%recruit_dbh     (donc) == cpatch%recruit_dbh(recc)       &
                      .and. cpatch%census_status   (donc) == cpatch%census_status(recc)     &
                      .and. cpatch%phenology_status(donc) == cpatch%phenology_status(recc)  &
+		     .and. .NOT.(cpatch%pft(donc) == 17)) 				   &
+		     .or.				   				   &
+		         (cpatch%pft(donc)              == cpatch%pft(recc)              &
+                     .and. lai_max                        < lai_fuse_tol*tolerance_mult    &
+                     .and. cpatch%first_census(donc)     == cpatch%first_census(recc)      &
+                     .and. cpatch%new_recruit_flag(donc) == cpatch%new_recruit_flag(recc)  &
+                     .and. cpatch%recruit_dbh     (donc) == cpatch%recruit_dbh(recc)       &
+                     .and. cpatch%census_status   (donc) == cpatch%census_status(recc)     &
+                     .and. cpatch%phenology_status(donc) == cpatch%phenology_status(recc)  &
+		     .and. cpatch%pft(donc) == 17	              			   &
+		     .and. abs(cpatch%hite(donc)-cpatch%hite(recc)) < 0.05*(cpatch%hite(donc)+cpatch%hite(recc))/2.)   & 	
                      ) then
 
                      !----- Proceed with fusion -------------------------------------------!
@@ -970,11 +983,20 @@ module fuse_fiss_utils
                    !-- use bdead for trees
                    cpatch%bdead(ico)  = cpatch%bdead(ico) * (1.-epsilon)
                    cpatch%dbh  (ico)  = bd2dbh(cpatch%pft(ico), cpatch%bdead(ico))
-                   cpatch%hite (ico)  = dbh2h(cpatch%pft(ico), cpatch%dbh(ico))
+                   !cpatch%hite (ico)  = dbh2h(cpatch%pft(ico), cpatch%dbh(ico))
 
                    cpatch%bdead(inew) = cpatch%bdead(inew) * (1.+epsilon)
                    cpatch%dbh  (inew) = bd2dbh(cpatch%pft(inew), cpatch%bdead(inew))
-                   cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
+                   !cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
+
+
+		  if (.NOT.(cpatch%pft(ico)==17)) then ! Not a liana
+		  	cpatch%hite (ico)  = dbh2h(cpatch%pft(ico), cpatch%dbh(ico))
+			cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
+		  else ! Liana
+			cpatch%hite (ico)  = cpatch%hite(ico)
+			cpatch%hite (inew) = cpatch%hite(ico)
+		  end if
                end if
                !---------------------------------------------------------------------------!
 
@@ -1150,10 +1172,16 @@ module fuse_fiss_utils
           cpatch%hite(recc)  = bl2h  (cpatch%bleaf(recc), cpatch%pft(recc))
           !--------------------------------------------------------------------------------!
       else
+	  !print*,'here1'
           !----- Trees, or old grass scheme.  Use bdead then find DBH and height. ---------!
           cpatch%bdead(recc) = cpatch%bdead(recc) * rnplant + cpatch%bdead(donc) * dnplant
           cpatch%dbh(recc)   = bd2dbh(cpatch%pft(recc), cpatch%bdead(recc))
-          cpatch%hite(recc)  = dbh2h(cpatch%pft(recc),  cpatch%dbh(recc))
+
+	  if (.NOT.(cpatch%pft(donc)==17)) then ! Not a liana
+              cpatch%hite(recc)  = dbh2h(cpatch%pft(recc),  cpatch%dbh(recc))
+	  else ! Liana
+	      cpatch%hite(recc) = (cpatch%hite(recc) +cpatch%hite(donc))/2.
+	  end if
           !--------------------------------------------------------------------------------!
       end if
       !------------------------------------------------------------------------------------!

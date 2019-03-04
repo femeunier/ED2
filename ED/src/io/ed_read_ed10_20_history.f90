@@ -773,10 +773,22 @@ subroutine read_ed10_ed20_history_file
                            if (bdead(ic) > 0.0) then
                               cpatch%bdead(ic2) = max(bdead(ic),min_bdead(ipft(ic)))
                               cpatch%dbh(ic2)   = bd2dbh(ipft(ic),bdead(ic))
-                              cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+			      
+			      ! In case of liana, we read the hite as well 
+			      if (ipft(ic)==17) then
+			        cpatch%hite(ic2)  = hite(ic)
+			      else 
+				cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+			      end if                              
                            else
                               cpatch%dbh(ic2)   = dbh(ic)
-                              cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+			      ! In case of liana, we read the hite as well 
+			      if (ipft(ic)==17) then
+			        cpatch%hite(ic2)  = hite(ic)
+				!print*,hite(ic),dbh2h(ipft(ic),dbh(ic))
+			      else 
+				cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+			      end if                              
                               cpatch%bdead(ic2) = dbh2bd(dbh(ic),ipft(ic))
                            end if
                         end select

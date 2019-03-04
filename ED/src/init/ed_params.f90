@@ -89,8 +89,8 @@ subroutine load_ed_ecosystem_params()
    !---------------------------------------------------------------------------------------!
    !           This flag is used to define whether the plant is a liana or not             !
    !---------------------------------------------------------------------------------------!
-   is_liana(1:16)  = .false.
-   is_liana(17)    = .true.
+   is_liana(1:17)  = .false.
+   !is_liana(17)    = .true.
    !---------------------------------------------------------------------------------------!
 
 
@@ -3541,7 +3541,7 @@ subroutine init_pft_hydro_params()
 	print*,'Liana hydraulic properties before erasing'   
 	print*, leaf_water_cap(ipft),wood_water_cap(ipft),leaf_psi_tlp(ipft),wood_Kmax(ipft),wood_psi50(ipft),wood_Kexp(ipft)
 
-	       if (is_liana(ipft)) then
+	       if (ipft==17) then
 		leaf_water_cap(ipft) = (exp(0.58-0.63*log( 1000 /(C2B* SLA(ipft)))))/ MPa2m ! kg/kg/m
 		wood_water_cap(ipft) = exp(6.25 -3.76*rho(ipft) + 1.07)/ MPa2m    / (rho(ipft) * 1.e3) !kg/kg/m
 

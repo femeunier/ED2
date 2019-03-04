@@ -234,7 +234,7 @@ module ed_max_dims
    !---------------------------------------------------------------------------------------!
    integer, parameter :: huge_polygon = nxpmax * nypmax
    integer, parameter :: huge_patch   = 3600
-   integer, parameter :: huge_cohort  = 150000
+   integer, parameter :: huge_cohort  = 300000
    integer, parameter :: max_water    = 100
    !---------------------------------------------------------------------------------------!
 

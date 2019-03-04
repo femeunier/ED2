@@ -1241,9 +1241,11 @@ subroutine update_derived_cohort_props(cpatch,ico,lsl,month)
        cpatch%hite(ico) = bl2h  (cpatch%bleaf(ico), ipft)
    else
        !---- Trees and old grasses get dbh from bdead. ------------------------------------!
+       !print*,'here' !
        cpatch%dbh(ico)  = bd2dbh(ipft, cpatch%bdead(ico))
-       cpatch%hite(ico) = dbh2h (ipft, cpatch%dbh  (ico))
-!       cpatch%hite(ico) = dbh2h (ipft, cpatch%dbh  (ico), cpatch%hite(1))
+       if (.not.(cpatch%pft(ico)==17)) then ! If not liana, update
+       	  cpatch%hite(ico) = dbh2h (ipft, cpatch%dbh  (ico))
+       end if
    end if
    !---------------------------------------------------------------------------------------!
 

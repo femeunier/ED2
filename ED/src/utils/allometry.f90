@@ -76,7 +76,7 @@ contains
       !      Select which type of model we are running.                                    !
       !------------------------------------------------------------------------------------!
       select case (ibigleaf)
-         case (0)
+	 case (0)
             !----- Size- and age-structure (typical ED model). ----------------------------!
             if (is_tropical(ipft)) then
                mdbh = min(dbh,dbh_crit(ipft))

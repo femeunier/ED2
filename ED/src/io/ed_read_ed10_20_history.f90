@@ -759,7 +759,13 @@ subroutine read_ed10_ed20_history_file
                         case (6)
                            !----- Inventory.  Read DBH and find the other stuff. ----------!
                            cpatch%dbh(ic2)   = max(dbh(ic),min_dbh(ipft(ic)))
-                           cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+
+			   if (ipft(ic)==17) then
+			     cpatch%hite(ic2)  = hite(ic)
+			   else 
+			     cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
+			   end if  
+
                            cpatch%bdead(ic2) = dbh2bd(dbh(ic),ipft(ic))
 
                         case default

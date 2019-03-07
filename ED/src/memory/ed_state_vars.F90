@@ -28176,7 +28176,7 @@ module ed_state_vars
          nvar=nvar+1
          call vtable_edio_r(npts,cpatch%wflux_gw_layer                                     &
                            ,nvar,igr,init,cpatch%coglob_id,var_len,var_len_global,max_ptrs &
-                           ,'WFLUX_GW_LAYER :42:hist:anal:mont:dcyc:opti') 
+                           ,'WFLUX_GW_LAYER :42:hist:dcyc') 
          call metadata_edio(nvar,igr,'Instantaneous - Water flux from ground to wood'      &
                            ,'[kg/s]','(nzg,icohort)') 
       end if
@@ -28213,7 +28213,7 @@ module ed_state_vars
          nvar = nvar+1
          call vtable_edio_r(npts,cpatch%fmean_wflux_gw_layer                               &
                            ,nvar,igr,init,cpatch%coglob_id,var_len,var_len_global,max_ptrs &
-                           ,'FMEAN_WFLUX_GW_LAYER_CO       :42:hist:anal:mont:dcyc:opti'     )
+                           ,'FMEAN_WFLUX_GW_LAYER_CO       :42:'//trim(fast_keys)     )
          call metadata_edio(nvar,igr                                                       &
                            ,'Sub-daily mean - Water flux from ground to wood'              &
                            ,'[       kg/s]','(nzg,icohort)'        )

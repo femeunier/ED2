@@ -64,6 +64,8 @@ module average_utils
       real                           :: poly_nplant
       real                           :: site_wgt
       real                           :: patch_wgt
+      real                           :: liana_lai
+      real                           :: total_lai
       real                           :: skin_energy
       real                           :: skin_water
       real                           :: skin_hcap
@@ -152,7 +154,11 @@ module average_utils
                !---------------------------------------------------------------------------!
                !     Loop over cohorts.                                                    !
                !---------------------------------------------------------------------------!
+	       liana_lai=0.
+               total_lai=0.
                cohortloop: do ico=1,cpatch%ncohorts
+
+
                   !------------------------------------------------------------------------!
                   !    Aggregate AIs and density, they may be used to normalise averages.  !
                   !------------------------------------------------------------------------!
@@ -359,10 +365,20 @@ module average_utils
                   cgrid%fmean_lai           (ipy) = cgrid%fmean_lai            (ipy)       &
                                                   + cpatch%fmean_lai           (ico)       &
                                                   * patch_wgt
+
+
+		  if (cpatch%pft (ico) == 17) then
+		  	liana_lai                = liana_lai + cpatch%fmean_lai_liana (ico)  
+		  end if 
+		  total_lai 			 = total_lai + cpatch%fmean_lai_liana (ico)
+
                end do cohortloop
+	       !print*,total_lai,liana_lai
                !---------------------------------------------------------------------------!
 
-
+               cgrid%fmean_lai_liana     (ipy) = cgrid%fmean_lai_liana         (ipy)       &
+                                                  + liana_lai/total_lai                    &
+                                                  * patch_wgt
 
 
                !---------------------------------------------------------------------------!
@@ -1081,6 +1097,7 @@ module average_utils
 
                   cpatch%fmean_bdead (ico)  =  cpatch%bdead  (ico) * cpatch%nplant  (ico)
                   cpatch%fmean_lai   (ico)  =  cpatch%lai    (ico) * cpatch%nplant  (ico)
+                  cpatch%fmean_lai_liana   (ico)  =  cpatch%lai    (ico) 
 
                   !------------------------------------------------------------------------!
                   !    Energy and water fluxes were integrated over the past frqsum        !
@@ -1314,7 +1331,8 @@ module average_utils
          cgrid%fmean_vapor_wc        (  ipy) = 0.0
          cgrid%fmean_intercepted_aw  (  ipy) = 0.0
          cgrid%fmean_wshed_wg        (  ipy) = 0.0
-         cgrid%fmean_lai             (  ipy) = 0.0         
+         cgrid%fmean_lai             (  ipy) = 0.0   
+         cgrid%fmean_lai_liana       (  ipy) = 0.0         
          cgrid%fmean_bdead           (  ipy) = 0.0         
          cgrid%fmean_rh              (  ipy) = 0.0
          cgrid%fmean_cwd_rh          (  ipy) = 0.0
@@ -1573,6 +1591,7 @@ module average_utils
                   cpatch%fmean_intercepted_aw    (ico) = 0.0
                   cpatch%fmean_wshed_wg          (ico) = 0.0
                   cpatch%fmean_lai               (ico) = 0.0
+                  cpatch%fmean_lai_liana         (ico) = 0.0
                   cpatch%fmean_bdead             (ico) = 0.0
 
                   cpatch%fmean_leaf_psi          (ico) = 0.0

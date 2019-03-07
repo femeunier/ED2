@@ -1064,7 +1064,12 @@ subroutine canopy_derivs_two(mzg,initp,dinitp,csite,ipa,hflxsc,wflxsc,qwflxsc,hf
       do ico = 1,cpatch%ncohorts
          taii = taii + initp%tai(ico)
       end do
-      taii = 1.d0/taii
+
+      if (taii == 0.d0) then
+         taii = 1.d0
+      else
+         taii = 1.d0/taii
+      end if
 
       !------------------------------------------------------------------------------------!
       !    If the canopy does not cover all of the ground, then it should not intercept    !

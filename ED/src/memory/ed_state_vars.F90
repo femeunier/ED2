@@ -668,6 +668,7 @@ module ed_state_vars
       real,pointer,dimension(:)   :: fmean_intercepted_aw   !<Wood interception [  kg/m2g/s]
       real,pointer,dimension(:)   :: fmean_wshed_wg         !<Wood shedding     [  kg/m2g/s]
       real,pointer,dimension(:)   :: fmean_lai              !<LAI               [   m2l/m2g]
+      real,pointer,dimension(:)   :: fmean_lai_liana        !<Liana cont to LAI [         -]
       real,pointer,dimension(:)   :: fmean_bdead            !<Bdead             [    kgC/pl]
       real,pointer,dimension(:)   :: fmean_leaf_psi         !<&Psi; leaf        [         m]
       real,pointer,dimension(:)   :: fmean_wood_psi         !<&Psi; wood        [         m]
@@ -2551,6 +2552,7 @@ module ed_state_vars
       real,pointer,dimension(:) :: fmean_skin_temp        !<Skin temperature    [         K]
       !--------Variables required by PEcAn.  ----------------------------------------------!
       real,pointer,dimension(:) :: fmean_lai              !<LAI                 [     m2/m2]
+      real,pointer,dimension(:) :: fmean_lai_liana        !<Liana cont to LAI   [         -]
       real,pointer,dimension(:) :: fmean_bdead            !<Bdead               [     kg/pl]
       !----- Variables without sub-daily averages. ----------------------------------------!
       real,pointer,dimension(:) :: dmean_nppleaf          !<Leaf NPP            [ kgC/m2/yr]
@@ -3446,6 +3448,7 @@ module ed_state_vars
       allocate(cgrid%fmean_soil_wetness         (                    npolygons))
       allocate(cgrid%fmean_skin_temp            (                    npolygons))
       allocate(cgrid%fmean_lai                  (                    npolygons))
+      allocate(cgrid%fmean_lai_liana            (                    npolygons))
       allocate(cgrid%fmean_bdead                (                    npolygons))
 
 
@@ -4904,6 +4907,7 @@ module ed_state_vars
       allocate(cpatch%fmean_intercepted_aw         (                    ncohorts))
       allocate(cpatch%fmean_wshed_wg               (                    ncohorts))
       allocate(cpatch%fmean_lai                    (                    ncohorts))
+      allocate(cpatch%fmean_lai_liana              (                    ncohorts))
       allocate(cpatch%fmean_bdead                  (                    ncohorts))
 
       allocate(cpatch%fmean_leaf_psi               (                    ncohorts))
@@ -5438,6 +5442,7 @@ module ed_state_vars
       nullify(cgrid%fmean_soil_wetness      )
       nullify(cgrid%fmean_skin_temp         )
       nullify(cgrid%fmean_lai               )
+      nullify(cgrid%fmean_lai_liana         )
       nullify(cgrid%fmean_bdead             )
       nullify(cgrid%dmean_nppleaf           )
       nullify(cgrid%dmean_nppfroot          )
@@ -6761,6 +6766,7 @@ module ed_state_vars
       nullify(cpatch%fmean_intercepted_aw  )
       nullify(cpatch%fmean_wshed_wg        )
       nullify(cpatch%fmean_lai             )
+      nullify(cpatch%fmean_lai_liana       )
       nullify(cpatch%fmean_bdead           )
 
       nullify(cpatch%fmean_leaf_psi        )
@@ -7744,6 +7750,7 @@ module ed_state_vars
       if(associated(cpatch%fmean_intercepted_aw)) deallocate(cpatch%fmean_intercepted_aw)
       if(associated(cpatch%fmean_wshed_wg      )) deallocate(cpatch%fmean_wshed_wg      )
       if(associated(cpatch%fmean_lai           )) deallocate(cpatch%fmean_lai           )
+      if(associated(cpatch%fmean_lai_liana     )) deallocate(cpatch%fmean_lai_liana     )
       if(associated(cpatch%fmean_bdead         )) deallocate(cpatch%fmean_bdead         )
 
       if(associated(cpatch%fmean_leaf_psi      )) deallocate(cpatch%fmean_leaf_psi      )
@@ -9629,6 +9636,7 @@ module ed_state_vars
          opatch%fmean_intercepted_aw  (oco) = ipatch%fmean_intercepted_aw  (ico)
          opatch%fmean_wshed_wg        (oco) = ipatch%fmean_wshed_wg        (ico)
          opatch%fmean_lai             (oco) = ipatch%fmean_lai             (ico)
+         opatch%fmean_lai_liana       (oco) = ipatch%fmean_lai_liana       (ico)
          opatch%fmean_bdead           (oco) = ipatch%fmean_bdead           (ico)
 
          opatch%fmean_leaf_psi        (oco) = ipatch%fmean_leaf_psi        (ico)
@@ -10366,6 +10374,7 @@ module ed_state_vars
       opatch%fmean_intercepted_aw  (1:z) = pack(ipatch%fmean_intercepted_aw      ,lmask)
       opatch%fmean_wshed_wg        (1:z) = pack(ipatch%fmean_wshed_wg            ,lmask)
       opatch%fmean_lai             (1:z) = pack(ipatch%fmean_lai                 ,lmask)
+      opatch%fmean_lai_liana       (1:z) = pack(ipatch%fmean_lai_liana           ,lmask)
       opatch%fmean_bdead           (1:z) = pack(ipatch%fmean_bdead               ,lmask)
 
       opatch%fmean_leaf_psi        (1:z) = pack(ipatch%fmean_leaf_psi            ,lmask)
@@ -13161,6 +13170,18 @@ module ed_state_vars
                            ,'Sub-daily mean - LAI'                                         &
                            ,'[           m2/m2]','(ipoly)'            )
       end if
+
+
+      if (associated(cgrid%fmean_lai_liana)) then
+         nvar = nvar+1
+         call vtable_edio_r(npts,cgrid%fmean_lai_liana                                           &
+                           ,nvar,igr,init,cgrid%pyglob_id,var_len,var_len_global,max_ptrs  &
+                           ,'FMEAN_LAI_LIANA_PY  :11:'//trim(fast_keys)  )
+         call metadata_edio(nvar,igr                                                       &
+                           ,'Sub-daily mean - Liana contribution to LAI'                   &
+                           ,'[           -]','(ipoly)'            )
+      end if
+
       if (associated(cgrid%fmean_skin_temp)) then
          nvar = nvar+1
          call vtable_edio_r(npts,cgrid%fmean_bdead                                         &
@@ -28155,7 +28176,7 @@ module ed_state_vars
          nvar=nvar+1
          call vtable_edio_r(npts,cpatch%wflux_gw_layer                                     &
                            ,nvar,igr,init,cpatch%coglob_id,var_len,var_len_global,max_ptrs &
-                           ,'WFLUX_GW_LAYER :42:hist') 
+                           ,'WFLUX_GW_LAYER :42:hist:anal:mont:dcyc:opti') 
          call metadata_edio(nvar,igr,'Instantaneous - Water flux from ground to wood'      &
                            ,'[kg/s]','(nzg,icohort)') 
       end if
@@ -28192,7 +28213,7 @@ module ed_state_vars
          nvar = nvar+1
          call vtable_edio_r(npts,cpatch%fmean_wflux_gw_layer                               &
                            ,nvar,igr,init,cpatch%coglob_id,var_len,var_len_global,max_ptrs &
-                           ,'FMEAN_WFLUX_GW_LAYER_CO       :42:'//trim(fast_keys)     )
+                           ,'FMEAN_WFLUX_GW_LAYER_CO       :42:hist:anal:mont:dcyc:opti'     )
          call metadata_edio(nvar,igr                                                       &
                            ,'Sub-daily mean - Water flux from ground to wood'              &
                            ,'[       kg/s]','(nzg,icohort)'        )

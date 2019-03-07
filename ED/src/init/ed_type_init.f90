@@ -343,6 +343,7 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
    cpatch%fmean_wshed_wg          (ico) = 0.0
 
    cpatch%fmean_lai               (ico) = 0.0
+   cpatch%fmean_lai_liana         (ico) = 0.0
    cpatch%fmean_bdead             (ico) = 0.0
    
    cpatch%fmean_leaf_psi          (ico) = 0.0
@@ -1605,6 +1606,7 @@ subroutine init_ed_poly_vars(cgrid)
       cgrid%fmean_wshed_wg             (ipy) = 0.0
 
       cgrid%fmean_lai                  (ipy) = 0.0
+      cgrid%fmean_lai_liana            (ipy) = 0.0
       cgrid%fmean_bdead                (ipy) = 0.0
 
       cgrid%fmean_rh                   (ipy) = 0.0

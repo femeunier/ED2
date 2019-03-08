@@ -162,12 +162,13 @@ subroutine ed_driver()
 
    !---------------------------------------------------------------------------------------!
    !      In case the runs is going to produce detailed output, we eliminate all patches   !
-   ! but the one to be analysed in detail.  Special cases:                                 !
+   ! but the one to be analysed in detail (in patch_keep).  Special cases:                                 !
    !  0 -- Keep all patches.                                                               !
    ! -1 -- Keep the one with the highest LAI                                               !
    ! -2 -- Keep the one with the lowest LAI                                                !
    !---------------------------------------------------------------------------------------!
-   patch_detailed = ibclr(idetailed,5) > 0
+   patch_detailed = ibclr(idetailed,5) > 0 ! Basically if idetailed is larger than 0,
+   !print*,patch_detailed,idetailed,ibclr(0,5),ibclr(1,5),ibclr(2,5)
    if (patch_detailed) then
       call exterminate_patches_except(patch_keep)
    end if

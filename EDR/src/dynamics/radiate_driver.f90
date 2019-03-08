@@ -319,6 +319,8 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
    real                                          :: ground_par_check
    real                                          :: ground_nir_check
    integer                                       :: ibuff
+   character*25                                  :: filename 
+
 
    integer                                       :: wlr, lvis, lnir
    integer                                       :: lpft, ii
@@ -1408,6 +1410,7 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
          end if
          !---------------------------------------------------------------------------------!
 
+	 
          open(31,file='albedo_par.dat')
          write(31,*) alp
          close(31)
@@ -1419,6 +1422,44 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
          open(33,file='LAI.dat')
          write(33,*) cpatch%lai
          close(33)
+
+         if (ipa < 10) then
+	    write(filename,'("patches/albedo_par",I1,".dat")')ipa
+	 elseif (ipa < 100) then
+	    write(filename,'("patches/albedo_par",I2,".dat")')ipa
+	 else 
+	    write(filename,'("patches/albedo_par",I3,".dat")')ipa
+         end if
+         
+	 open(31,file=filename)
+         write(31,*) alp
+         close(31)
+
+         if (ipa < 10) then
+	    write(filename,'("patches/albedo_nir",I1,".dat")')ipa
+	 elseif (ipa < 100) then
+	    write(filename,'("patches/albedo_nir",I2,".dat")')ipa
+	 else 
+	    write(filename,'("patches/albedo_nir",I3,".dat")')ipa
+         end if
+         
+	 open(32,file=filename)
+         write(32,*) aln
+         close(32)
+
+         if (ipa < 10) then
+	    write(filename,'("patches/LAI",I1,".dat")')ipa
+	 elseif (ipa < 100) then
+	    write(filename,'("patches/LAI",I2,".dat")')ipa
+	 else 
+	    write(filename,'("patches/LAI",I3,".dat")')ipa
+         end if
+         
+	 open(33,file=filename)
+         write(33,*) cpatch%lai
+         close(33)
+
+ 
          
          !---------------------------------------------------------------------------------!
          !     Absorption rates of PAR, rshort, and rlong of the vegetation.  Here we      !

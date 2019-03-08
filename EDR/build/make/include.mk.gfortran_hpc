@@ -45,10 +45,12 @@ BASE=$(ED_ROOT)/build/
 
 USE_HDF5=1
 
-HDF5_HOME=/home/femeunier/Downloads/HDF5_new
-HDF5_INCS=-I/home/femeunier/Downloads/HDF5_new/include
-HDF5C_INCS=-I/home/femeunier/Downloads/HDF5_new/include
-HDF5_LIBS=-lm -lz -L/home/femeunier/Downloads/HDF5_new/lib -lhdf5 -lhdf5_fortran -lhdf5_hl
+HDF5_HOME=/usr/lib/x86_64-linux-gnu/hdf5/mpich/
+HDF5_INCS=-I/usr/lib/x86_64-linux-gnu/hdf5/mpich/include
+HDF5C_INCS=-I/usr/lib/x86_64-linux-gnu/hdf5/mpich/include
+HDF5_LIBS= -L/usr/lib/x86_64-linux-gnu/hdf5/mpich/lib
+HDF5_LIBS=-lm -lz -L/usr/lib/x86_64-linux-gnu/hdf5/mpich/lib -lhdf5 -lhdf5_fortran -lhdf5_hl
+
 
 USE_COLLECTIVE_MPIO=0
  
@@ -95,16 +97,49 @@ LOADER=mpif90
 ifeq ($(KIND_COMP),)
    KIND_COMP=E
 endif
-ifeq ($(KIND_COMP),$(filter $(KIND_COMP), A B C D))
-   F_OPTS=-g -ffree-line-length-none -fno-whole-file -O0 -fopenmp -ffpe-trap=invalid,zero,overflow -fbounds-check #-std=f2003
-   C_OPTS=-fopenmp -g -O0 -ffpe-trap=invalid,zero,overflow -fbounds-check
-   LOADER_OPTS=${F_OPTS}
+#------------------------------------------------------------------------------------------#
+ifeq ($(KIND_COMP),A)
+   USE_INTERF=0
+   F_OPTS= -FR -CB -O0 -check -g -prof-gen=srcpos -debug full -debug-parameters all        \
+           -fpe0 -traceback -ftrapuv -fp-stack-check -implicitnone                 \
+           -assume byterecl -warn all -warn nointerfaces -gen-interfaces
+   C_OPTS= -O0 -DLITTLE  -g -traceback
+   LOADER_OPTS=$(F_OPTS) -Wl,-no_pie
+   #---------------------------------------------------------------------------------------#
+endif
+ifeq ($(KIND_COMP),B)
+   USE_INTERF=0
+   F_OPTS= -FR -O0 -check -g -debug extended -debug-parameters used        \
+           -fpe0 -traceback -ftrapuv -fp-stack-check -implicitnone                 \
+           -assume byterecl -warn unused -warn uncalled -warn usage -warn interfaces
+   C_OPTS= -O0 -DLITTLE  -g -traceback
+   LOADER_OPTS=$(F_OPTS) -Wl,-no_pie
+   #---------------------------------------------------------------------------------------#
+endif
+ifeq ($(KIND_COMP),C)
+   USE_INTERF=1
+   F_OPTS= -FR -O0 -check -g -debug extended -debug-parameters used        \
+           -fpe0 -traceback -ftrapuv -fp-stack-check -implicitnone                 \
+           -assume byterecl
+   C_OPTS= -O0 -DLITTLE  -g -traceback
+   LOADER_OPTS=$(F_OPTS) -Wl,-no_pie
+   #---------------------------------------------------------------------------------------#
+endif
+ifeq ($(KIND_COMP),D)
+   USE_INTERF=1
+   F_OPTS= -FR -O0 -check -fpe0 -traceback -ftrapuv -fp-stack-check  \
+           -implicitnone -assume byterecl
+   C_OPTS= -O0 -DLITTLE  -g -traceback
+   LOADER_OPTS=$(F_OPTS) -Wl,-no_pie
+   #---------------------------------------------------------------------------------------#
 endif
 ifeq ($(KIND_COMP),E)
-   F_OPTS=-g -ffree-line-length-none -fno-whole-file -O2 -fopenmp #-ffpe-trap=invalid,zero,overflow -fbounds-check  #-O2
-   C_OPTS=-g -O2 -fopenmp #-ffpe-trap=invalid,zero,overflow -fbounds-check #-O2
-   LOADER_OPTS=${F_OPTS}
+	USE_INTERF=1
+	F_OPTS= -O3 -g -assume byterecl -qopenmp
+	C_OPTS= -O3  -g -qopenmp
+	F_LOWO_OPTS= -O2 -g -qopenmp
 endif
+LOADER_OPTS=$(F_OPTS) 
 
 
 LIBS=

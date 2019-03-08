@@ -44,11 +44,39 @@ BASE=$(ED_ROOT)/build/
 # library files. Make sure you include the zlib.a location too.
 
 USE_HDF5=1
+#HDF5_INCS=-I/n/Moorcroft_Lab/Lab/apps/i91/lib -I/n/Moorcroft_Lab/Lab/apps/i91/include
+#HDF5_LIBS=-L/n/Moorcroft_Lab/Lab/apps/i91/lib -lhdf5 -lm -lhdf5_fortran -lhdf5 -lhdf5_hl \
+#          -L/n/Moorcroft_Lab/Lab/mlongo/util/hdflib/hdf4_64/zlib/lib -lz
 
-HDF5_HOME=/home/femeunier/Downloads/HDF5_new
-HDF5_INCS=-I/home/femeunier/Downloads/HDF5_new/include
-HDF5C_INCS=-I/home/femeunier/Downloads/HDF5_new/include
-HDF5_LIBS=-lm -lz -L/home/femeunier/Downloads/HDF5_new/lib -lhdf5 -lhdf5_fortran -lhdf5_hl
+#HDF5_INCS=-p /sw/hdf5-1.8.0-pabs/include
+#HDF5C_INCS=-I/sw/hdf5-1.8.0-pabs/include
+#HDF5_LIBS=-lz /sw/hdf5-1.8.0-pabs/lib/libhdf5_fortran.a \
+#	/sw/hdf5-1.8.0-pabs/lib/libhdf5.a \
+#	/sw/hdf5-1.8.0-pabs/lib/libhdf5_hl.a
+
+#HDF5_INCS=-I/sw/hdf5-1.6.6-gfortran/lib
+#HDF5C_INCS=-I/sw/hdf5-1.6.6-gfortran/include
+#HDF5_LIBS=-lz /sw/hdf5-1.6.6-gfortran/lib/libhdf5_fortran.a \
+#	/sw/hdf5-1.6.6-gfortran/lib/libhdf5.a \
+#	/sw/hdf5-1.6.6-gfortran/lib/libhdf5_hl.a
+
+HDF5_INCS=-I/usr/local/hdf5-1.8.2/include
+HDF5C_INCS=-I/usr/local/hdf5-1.8.2/include
+HDF5_LIBS=-lz /usr/local/hdf5-1.8.2/lib/libhdf5_fortran.a \
+        /usr/local/hdf5-1.8.2/lib/libhdf5.a \
+        /usr/local/hdf5-1.8.2/lib/libhdf5_hl.a
+
+
+# tormenta.mit.edu
+
+HDF5_INCS=-I/opt/hdf5/1.8.1/ompi-tcp-gnu41/include
+HDF5C_INCS=-I/opt/hdf5/1.8.1/ompi-tcp-gnu41/include
+HDF5_LIBS=-lz -L/opt/hdf5/1.8.1/ompi-tcp-gnu41/lib \
+	-lhdf5_fortran -lhdf5 -lhdf5_hl
+#---------------------------------------------------------------
+# If you have a version of hdf5 compiled in parallel, then you
+# may benefit from collective I/O, then use this flag = 1
+# Otherwise, set it to zero.
 
 USE_COLLECTIVE_MPIO=0
  
@@ -82,33 +110,31 @@ USE_MPIWTIME=1
 # CODE IS INTENDED TO BE LINE WIDTH COMPLIANT WITHIN 132 
 
 
-#----------------- gfortran on Linux -----------
-CMACH=PC_GFORTRAN
+#----------------- gfortran on Linux (optimized build)-----------
+CMACH=PC_LINUX1
 F_COMP=mpif90
-C_COMP=mpicc 
+F_OPTS=-O3 -ffree-line-length-none
+C_COMP=mpicc
+C_OPTS=-O3
 LOADER=mpif90
-##################################### COMPILER OPTIONS #####################################
-#------------------------------------------------------------------------------------------#
-# A/B/C/D. Debugging, strictest compilation flags, lowest performance.                     #
-# E.       Running, most relaxed compilation flags, highest performance.                   #
-#------------------------------------------------------------------------------------------#
-ifeq ($(KIND_COMP),)
-   KIND_COMP=E
-endif
-ifeq ($(KIND_COMP),$(filter $(KIND_COMP), A B C D))
-   F_OPTS=-g -ffree-line-length-none -fno-whole-file -O0 -fopenmp -ffpe-trap=invalid,zero,overflow -fbounds-check #-std=f2003
-   C_OPTS=-fopenmp -g -O0 -ffpe-trap=invalid,zero,overflow -fbounds-check
-   LOADER_OPTS=${F_OPTS}
-endif
-ifeq ($(KIND_COMP),E)
-   F_OPTS=-g -ffree-line-length-none -fno-whole-file -O2 -fopenmp #-ffpe-trap=invalid,zero,overflow -fbounds-check  #-O2
-   C_OPTS=-g -O2 -fopenmp #-ffpe-trap=invalid,zero,overflow -fbounds-check #-O2
-   LOADER_OPTS=${F_OPTS}
-endif
-
-
+LOADER_OPTS=${F_OPTS}
+C_LOADER=mpicc
 LIBS=
 MOD_EXT=mod
+
+
+#----------------- gfortran on Linux (debugging build)-----------
+#CMACH=PC_LINUX1
+#F_COMP=mpif90
+#F_OPTS=-g -ffpe-trap=invalid,zero,overflow -fbounds-check -ffree-line-length-0
+#C_COMP=mpicc
+#C_OPTS=-g -ffpe-trap=invalid,zero,overflow -fbounds-check -ffree-line-length-0
+#LOADER=mpif90
+#LOADER_OPTS=${F_OPTS}
+#C_LOADER=mpicc
+#LIBS=
+#MOD_EXT=mod
+
 
 # Ancillary Compiler options
 #USE_INTERF=1

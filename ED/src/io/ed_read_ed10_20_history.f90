@@ -827,9 +827,9 @@ subroutine read_ed10_ed20_history_file
                         ! phenology after this sub-routine.                                !
                         !------------------------------------------------------------------!
                         cpatch%phenology_status(ic2) = 0
-                        cpatch%bstorage        (ic2) = cpatch%bleaf(ic2)*0.1
+                        cpatch%bstorage        (ic2) = 0.1*(cpatch%bleaf(ic2)+cpatch%broot(ic2)+ &
+							    cpatch%bsapwooda(ic2)+cpatch%bsapwoodb(ic2))
                         !------------------------------------------------------------------!
-
 
 
                         !------------------------------------------------------------------!

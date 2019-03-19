@@ -104,6 +104,7 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
    cpatch%wflux_gw      (  ico) = 0.
    cpatch%wflux_wl      (  ico) = 0.
    cpatch%wflux_gw_layer(:,ico) = 0.
+   cpatch%zRWU          (  ico) = 0.
 
    cpatch%high_leaf_psi_days    (ico)   = 0
    cpatch%low_leaf_psi_days     (ico)   = 0
@@ -347,6 +348,7 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
    cpatch%fmean_bdead             (ico) = 0.0
    
    cpatch%fmean_leaf_psi          (ico) = 0.0
+   cpatch%fmean_zRWU              (ico) = 0.0
    cpatch%fmean_wood_psi          (ico) = 0.0
    cpatch%fmean_leaf_water_int    (ico) = 0.0
    cpatch%fmean_wood_water_int    (ico) = 0.0
@@ -633,6 +635,7 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
       cpatch%qmean_wood_water_int    (:,ico) = 0.0
       cpatch%qmean_wflux_gw          (:,ico) = 0.0
       cpatch%qmean_wflux_wl          (:,ico) = 0.0
+      cpatch%qmean_zRWU              (:,ico) = 0.0
 
       cpatch%qmsqu_gpp               (:,ico) = 0.0
       cpatch%qmsqu_npp               (:,ico) = 0.0
@@ -1553,6 +1556,9 @@ subroutine init_ed_poly_vars(cgrid)
       cgrid%fmean_npp                  (ipy) = 0.0
       cgrid%fmean_leaf_resp            (ipy) = 0.0
       cgrid%fmean_root_resp            (ipy) = 0.0
+      cgrid%fmean_zRWU                 (ipy) = 0.0
+      cgrid%fmean_zRWU_liana           (ipy) = 0.0
+      cgrid%fmean_zRWU_tree            (ipy) = 0.0
       cgrid%fmean_leaf_growth_resp     (ipy) = 0.0
       cgrid%fmean_root_growth_resp     (ipy) = 0.0
       cgrid%fmean_sapa_growth_resp     (ipy) = 0.0

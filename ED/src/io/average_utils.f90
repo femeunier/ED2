@@ -62,6 +62,9 @@ module average_utils
       real                           :: poly_lai
       real                           :: poly_wai
       real                           :: poly_nplant
+      real                           :: poly_transp
+      real                           :: poly_transp_liana
+      real                           :: poly_transp_tree
       real                           :: site_wgt
       real                           :: patch_wgt
       real                           :: liana_lai
@@ -117,6 +120,9 @@ module average_utils
          poly_lai                 = 0.0
          poly_wai                 = 0.0
          poly_nplant              = 0.0
+         poly_transp              = 0.0
+         poly_transp_liana        = 0.0
+         poly_transp_tree         = 0.0
          cgrid_fmean_soil_hcap(:) = 0.0
          !---------------------------------------------------------------------------------!
 
@@ -165,6 +171,7 @@ module average_utils
                   poly_nplant = poly_nplant + cpatch%nplant(ico) * patch_wgt
                   poly_lai    = poly_lai    + cpatch%lai   (ico) * patch_wgt
                   poly_wai    = poly_wai    + cpatch%wai   (ico) * patch_wgt
+                  poly_transp = poly_transp + cpatch%wflux_gw (ico) *patch_wgt
                   !------------------------------------------------------------------------!
 
 
@@ -185,6 +192,30 @@ module average_utils
                                                   + cpatch%fmean_root_resp     (ico)       &
                                                   * cpatch%nplant              (ico)       &
                                                   * patch_wgt
+                  cgrid%fmean_zRWU          (ipy) = cgrid%fmean_zRWU           (ipy)       &
+                                                  + cpatch%fmean_zRWU          (ico)       &
+                                                  * cpatch%wflux_gw            (ico)       &
+                                                  * patch_wgt
+
+                 if (cpatch%pft(ico) == 17) then
+                  cgrid%fmean_zRWU_liana    (ipy) = cgrid%fmean_zRWU_liana     (ipy)       &
+                                                  + cpatch%fmean_zRWU          (ico)       &
+                                                  * cpatch%wflux_gw            (ico)       &
+                                                  * patch_wgt
+                  poly_transp_liana = poly_transp_liana + cpatch%wflux_gw (ico) *patch_wgt
+
+		 else 
+
+                  cgrid%fmean_zRWU_tree     (ipy) = cgrid%fmean_zRWU_tree      (ipy)       &
+                                                  + cpatch%fmean_zRWU          (ico)       &
+                                                  * cpatch%wflux_gw            (ico)       &
+                                                  * patch_wgt
+                  poly_transp_tree = poly_transp_tree + cpatch%wflux_gw (ico) *patch_wgt
+		 end if
+
+
+
+
                   cgrid%fmean_leaf_growth_resp(ipy) = cgrid%fmean_leaf_growth_resp  (ipy)  &
                                                     + cpatch%fmean_leaf_growth_resp (ico)  &
                                                     * cpatch%nplant                 (ico)  &
@@ -751,6 +782,25 @@ module average_utils
          else
             cgrid%fmean_wood_gbw  (ipy) = 0.0
          end if
+
+         if (poly_transp > 0.) then
+            cgrid%fmean_zRWU        (ipy) = cgrid%fmean_zRWU   (ipy) / poly_transp
+         else
+            cgrid%fmean_zRWU        (ipy) = 0.0
+         end if
+
+         if (poly_transp_liana > 0.) then
+            cgrid%fmean_zRWU_liana        (ipy) = cgrid%fmean_zRWU_liana   (ipy) / poly_transp_liana
+         else
+            cgrid%fmean_zRWU_liana        (ipy) = 0.0
+         end if
+
+         if (poly_transp_tree > 0.) then
+            cgrid%fmean_zRWU_tree        (ipy) = cgrid%fmean_zRWU_tree   (ipy) / poly_transp_tree
+         else
+            cgrid%fmean_zRWU_tree        (ipy) = 0.0
+         end if
+
          !---------------------------------------------------------------------------------!
 
 
@@ -1280,6 +1330,9 @@ module average_utils
          cgrid%fmean_npp             (  ipy) = 0.0
          cgrid%fmean_leaf_resp       (  ipy) = 0.0
          cgrid%fmean_root_resp       (  ipy) = 0.0
+         cgrid%fmean_zRWU            (  ipy) = 0.0
+         cgrid%fmean_zRWU_liana      (  ipy) = 0.0
+         cgrid%fmean_zRWU_tree       (  ipy) = 0.0
          cgrid%fmean_leaf_growth_resp(  ipy) = 0.0
          cgrid%fmean_root_growth_resp(  ipy) = 0.0
          cgrid%fmean_sapa_growth_resp(  ipy) = 0.0
@@ -1595,6 +1648,7 @@ module average_utils
                   cpatch%fmean_bdead             (ico) = 0.0
 
                   cpatch%fmean_leaf_psi          (ico) = 0.0
+                  cpatch%fmean_zRWU              (ico) = 0.0
                   cpatch%fmean_wood_psi          (ico) = 0.0
                   cpatch%fmean_leaf_water_int    (ico) = 0.0
                   cpatch%fmean_wood_water_int    (ico) = 0.0
@@ -6750,6 +6804,9 @@ module average_utils
                   cpatch%qmean_leaf_psi      (t,ico) = cpatch%qmean_leaf_psi      (t,ico)  &
                                                      + cpatch%fmean_leaf_psi        (ico)  &
                                                      * ndaysi
+                  cpatch%qmean_zRWU          (t,ico) = cpatch%qmean_zRWU          (t,ico)  &
+                                                     + cpatch%fmean_zRWU            (ico)  &
+                                                     * ndaysi
                   cpatch%qmean_wood_psi      (t,ico) = cpatch%qmean_wood_psi      (t,ico)  &
                                                      + cpatch%fmean_wood_psi        (ico)  &
                                                      * ndaysi
@@ -7517,6 +7574,7 @@ module average_utils
                   cpatch%qmean_wshed_wg            (:,ico) = 0.0
 
                   cpatch%qmean_leaf_psi            (:,ico) = 0.0
+                  cpatch%qmean_zRWU                (:,ico) = 0.0
                   cpatch%qmean_wood_psi            (:,ico) = 0.0
                   cpatch%qmean_leaf_water_int      (:,ico) = 0.0
                   cpatch%qmean_wood_water_int      (:,ico) = 0.0

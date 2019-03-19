@@ -1609,6 +1609,10 @@ module fuse_fiss_utils
 
       cpatch%wflux_gw      (recc) = cpatch%wflux_gw     (recc) * rnplant                   &
                                   + cpatch%wflux_gw     (donc) * dnplant
+
+      cpatch%zRWU          (recc) = cpatch%zRWU     (recc) * rnplant                   &
+                                  + cpatch%zRWU     (donc) * dnplant
+
       cpatch%wflux_wl      (recc) = cpatch%wflux_wl     (recc) * rnplant                   &
                                   + cpatch%wflux_wl     (donc) * dnplant
       do isl = 1,nzg
@@ -1836,6 +1840,10 @@ module fuse_fiss_utils
          ! Internal water content and water fluxes are weighted by nplant
          cpatch%fmean_leaf_water_int(recc) = cpatch%fmean_leaf_water_int(recc) * rnplant   &
                                            + cpatch%fmean_leaf_water_int(donc) * dnplant
+
+         cpatch%fmean_zRWU           (recc) = cpatch%fmean_zRWU(recc) * rnplant            &
+                                            + cpatch%fmean_zRWU(donc) * dnplant
+
          cpatch%fmean_wood_water_int(recc) = cpatch%fmean_wood_water_int(recc) * rnplant   &
                                            + cpatch%fmean_wood_water_int(donc) * dnplant
          cpatch%fmean_wflux_gw      (recc) = cpatch%fmean_wflux_gw      (recc) * rnplant   &
@@ -2891,6 +2899,9 @@ module fuse_fiss_utils
                                              + cpatch%qmean_leaf_psi   (:,donc) * dlai
          cpatch%qmean_wood_psi      (:,recc) = cpatch%qmean_wood_psi   (:,recc) * rlai     &
                                              + cpatch%qmean_wood_psi   (:,donc) * dlai
+
+         cpatch%qmean_zRWU          (:,recc) = cpatch%qmean_zRWU   (:,recc) * rnplant     &
+                                             + cpatch%qmean_zRWU   (:,donc) * dnplant
          !---------------------------------------------------------------------------------!
 
 

@@ -92,6 +92,7 @@ module plant_hydro
             cpatch%leaf_rwc        (ico)    = 0.
             cpatch%wood_rwc        (ico)    = 0.
             cpatch%leaf_psi        (ico)    = 0.
+            cpatch%zRWU            (ico)    = 0.
             cpatch%wood_psi        (ico)    = 0.
         enddo
       case (-3,-2,-1,1,2,3)
@@ -243,7 +244,7 @@ module plant_hydro
                        ,cpatch%leaf_psi(ico),cpatch%wood_psi(ico)     &!input
                        ,soil_psi,soil_cond,ipa,ico                    &!input
                        ,cpatch%wflux_wl(ico),cpatch%wflux_gw(ico)     &!output
-                       ,cpatch%wflux_gw_layer(:,ico))                 !!output
+                       ,cpatch%wflux_gw_layer(:,ico),cpatch%zRWU(ico))                 !!output
 
             !else
             !    cpatch%wflux_wl(ico) = 0.
@@ -264,6 +265,10 @@ module plant_hydro
       do ico = 1, cpatch%ncohorts
          cpatch%fmean_leaf_psi   (ico) = cpatch%fmean_leaf_psi   (ico)                     &
                                        + cpatch%leaf_psi         (ico) * dtlsm_o_frqsum
+
+         cpatch%fmean_zRWU       (ico) = cpatch%fmean_zRWU   (ico)                     &
+                                       + cpatch%zRWU         (ico) * dtlsm_o_frqsum
+
          cpatch%fmean_wood_psi   (ico) = cpatch%fmean_wood_psi   (ico)                     &
                                        + cpatch%wood_psi         (ico) * dtlsm_o_frqsum
          cpatch%fmean_leaf_water_int(ico) = cpatch%fmean_leaf_water_int(ico)               &
@@ -344,7 +349,7 @@ module plant_hydro
                ,transp,leaf_psi,wood_psi                                & !plant input
                ,soil_psi,soil_cond                                      & !soil  input
                ,ipa,ico                                                 & !for debugging
-               ,wflux_wl,wflux_gw,wflux_gw_layer)                       ! !flux  output
+               ,wflux_wl,wflux_gw,wflux_gw_layer,zRWU)                       ! !flux  output
       use soil_coms       , only : slz8                 & ! intent(in)
                                  , dslz8                ! ! intent(in)
       use grid_coms       , only : nzg                  ! ! intent(in)
@@ -382,6 +387,7 @@ module plant_hydro
       integer,                 intent(in)  :: ipa             !Patch index          
       integer,                 intent(in)  :: ico             !Cohort index         
       real   ,                 intent(out) :: wflux_wl        !wood-leaf flux  [kg/s]
+      real   ,                 intent(out) :: zRWU            !Mean depth of uptake [m]
       real   ,                 intent(out) :: wflux_gw        !ground-wood flux [kg/s]
       real   , dimension(nzg), intent(out) :: wflux_gw_layer  !wflux_gw for each soil layer
 
@@ -422,6 +428,8 @@ module plant_hydro
       real(kind=8)                          :: above_layer_depth
       real(kind=8)                          :: current_layer_depth
       real(kind=8)                          :: total_water_supply
+      real(kind=8)                          :: zuptake
+      real(kind=8)                          :: total_uptake
       real(kind=8)      , dimension(nzg)    :: layer_water_supply
       character(len=13) , parameter         :: efmt       = '(a,1x,es12.5)'
       character(len=9)  , parameter         :: ifmt       = '(a,1x,i5)'
@@ -708,6 +716,27 @@ module plant_hydro
         endif
 
 
+       ! Calc zRWU
+
+       zuptake=0.
+       total_uptake=0.
+        do k = krdepth,nzg
+            current_layer_depth = slz8(k)
+            if (k+1 .le. nzg) then
+                above_layer_depth = slz8(k+1)
+            else
+                above_layer_depth = 0.d0
+            endif
+	   zuptake=zuptake+(above_layer_depth+current_layer_depth)/2.*wflux_gw_layer_d(k)
+           total_uptake=total_uptake + wflux_gw_layer_d(k)
+        end do
+
+        if (total_uptake ==0.d0) then
+	    zRWU=0.
+	else
+	    zRWU=zuptake/total_uptake
+        end if
+     
 
 
       !--------------------------------------------------------------------------

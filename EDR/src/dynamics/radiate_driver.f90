@@ -466,7 +466,8 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
    !----- Loop over the patches -----------------------------------------------------------!
    do ipa = 1,csite%npatches
       cpatch => csite%patch(ipa)
-      
+      print*,ipa,csite%ncohorts,sum(cpatch%lai)
+
       ibuff = 1
       !$ ibuff = OMP_get_thread_num()+1
 

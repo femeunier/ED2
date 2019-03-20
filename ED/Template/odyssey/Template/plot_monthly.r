@@ -314,7 +314,7 @@ for (place in myplaces){
 
 
    #---------------------------------------------------------------------------------------#
-   #      Define a suitable scale for those time series that uses datum$tomonth...             #
+   #      Define a suitable scale for those time series that uses datum$tomonth...         #
    #---------------------------------------------------------------------------------------#
    whenplot6 = pretty.time(datum$tomonth,n=6)
    whenplot8 = pretty.time(datum$tomonth,n=8)

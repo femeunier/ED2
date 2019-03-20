@@ -15,26 +15,27 @@ graphics.off()
 #------------------------------------------------------------------------------------------#
 
 #----- Paths. -----------------------------------------------------------------------------#
-here           = "thispath"    # Current directory.
-there          = "thatpath"    # Directory where analyses/history are 
-srcdir         = "thisrscpath" # Source  directory.
-outroot        = "thisoutroot" # Directory for figures
+here           = "/home/femeunier/Documents/ED2/R-utils"   # Current directory.
+there          = "/home/femeunier/Documents/ED2/ED/run/analy"    # Directory where analyses/history are 
+srcdir         = "/home/femeunier/Documents/ED2/R-utils" # Source  directory.
+outroot        = "/home/femeunier/Documents/Figures" # Directory for figures
 #------------------------------------------------------------------------------------------#
 
 
 #----- Time options. ----------------------------------------------------------------------#
-monthbeg       = thismontha   # First month to use
-yearbeg        = thisyeara    # First year to consider
-yearend        = thisyearz    # Maximum year to consider
-reload.data    = TRUE         # Should I reload partially loaded data?
-pov.month      = 5            # Months for POV-Ray plots
+monthbeg       = 1   # First month to use
+yearbeg        = 1500    # First year to consider
+yearend        = 1500    # Maximum year to consider
+reload.data    = FALSE         # Should I reload partially loaded data?
+pov.month      = 1            # Months for POV-Ray plots
 pop.scale      = 1.0          # Scaling factor to REDUCE displayed population.
+sasmonth       = 1
 #------------------------------------------------------------------------------------------#
 
 
 
 #----- Name of the simulations. -----------------------------------------------------------#
-myplaces       = c("thispoly")
+myplaces       = c("paracou")
 #------------------------------------------------------------------------------------------#
 
 
@@ -86,8 +87,8 @@ options(locatorBell=FALSE)
 
 
 #----- Load observations. -----------------------------------------------------------------#
-obsrfile = paste(srcdir,"LBA_MIP.v8.RData",sep="/")
-load(file=obsrfile)
+#obsrfile = paste(srcdir,"LBA_MIP.v8.RData",sep="/")
+#load(file=obsrfile)
 #------------------------------------------------------------------------------------------#
 
 
@@ -112,7 +113,13 @@ for (place in myplaces){
    #----- Retrieve default information about this place and set up some variables. --------#
    thispoi = locations(where=place,here=there,yearbeg=yearbeg,yearend=yearend
                       ,monthbeg=monthbeg)
-   inpref  = thispoi$pathin
+   
+   if (!(dir.exists(file.path(there,'analy')))){
+     inpref  = file.path(there,place)
+   } else {
+     inpref  = thispoi$pathin
+   }
+   
    bnpref  = basename(inpref)
    outmain = paste(outroot,place,sep="/")
    outpref = paste(outmain,"povray",sep="/")
@@ -136,7 +143,7 @@ for (place in myplaces){
    #---------------------------------------------------------------------------------------#
    #     Find the total number of months that can be loaded this time.                     #
    #---------------------------------------------------------------------------------------#
-   ntimes     = (yearz-yeara-1)*12+meszz+(12-monthbeg+1)
+   ntimes     = 1
    #---------------------------------------------------------------------------------------#
 
 
@@ -151,9 +158,10 @@ for (place in myplaces){
    #      Make the RData file name, then we check whether we must read the files again     #
    # or use the stored RData.                                                              #
    #---------------------------------------------------------------------------------------#
+   if (! file.exists(file.path(here,place))) dir.create(file.path(here,place))
    path.data  = paste(here,place,"rdata_month",sep="/")
    if (! file.exists(path.data)) dir.create(path.data)
-   ed22.rdata = paste(path.data,paste(place,"RData",sep="."),sep="/")
+   #ed22.rdata = paste(path.data,paste(place,"RData",sep="."),sep="/")
    if (reload.data && file.exists(ed22.rdata)){
       #----- Load the modelled dataset. ---------------------------------------------------#
       cat("   - Loading previous session...","\n")
@@ -221,8 +229,8 @@ for (place in myplaces){
       #------------------------------------------------------------------------------------#
 
       #------ Save the data to the R object. ----------------------------------------------#
-      cat(" + Saving data to ",basename(ed22.rdata),"...","\n")
-      save(datum,file=ed22.rdata)
+      #cat(" + Saving data to ",basename(ed22.rdata),"...","\n")
+      #save(datum,file=ed22.rdata)
       #------------------------------------------------------------------------------------#
    }#end if (! complete)
    #---------------------------------------------------------------------------------------#
@@ -264,16 +272,19 @@ for (place in myplaces){
       icoco    = cohort$ico[[pclab]]
       nplantco = round(cohort$nplant[[pclab]] * pov.total.area * pop.scale)
       dbhco    = cohort$dbh   [[pclab]]
+      hiteco   = cohort$height  [[pclab]]
       pftco    = cohort$pft   [[pclab]]
+      is_lianaco = (pftco==17)
       #------------------------------------------------------------------------------------#
 
 
       #----- Remove small plants to reduce the clutter. -----------------------------------#
-      keep     = is.finite(dbhco) & dbhco >= pov.dbh.min
+      keep     = is.finite(dbhco) & ((!is_lianaco & dbhco >= pov.dbh.min) | (is_lianaco & dbhco >= pov.dbh.min_liana))
       ipaco    = ipaco   [keep]
       icoco    = icoco   [keep]
       nplantco = nplantco[keep]
       dbhco    = dbhco   [keep]
+      hiteco   = hiteco   [keep]  
       pftco    = pftco   [keep]
       #------------------------------------------------------------------------------------#
 
@@ -317,6 +328,7 @@ for (place in myplaces){
          #---------------------------------------------------------------------------------#
          ipaco  = unlist(mapply(FUN=rep,x=ipaco,each=nplantco))
          dbhco  = unlist(mapply(FUN=rep,x=dbhco,each=nplantco))
+         hiteco = unlist(mapply(FUN=rep,x=hiteco,each=nplantco))
          pftco  = unlist(mapply(FUN=rep,x=pftco,each=nplantco))
          nco    = sum(nplantco)
          #---------------------------------------------------------------------------------#
@@ -355,10 +367,11 @@ for (place in myplaces){
          #---------------------------------------------------------------------------------#
          povplant = rbind(       "//----- The plants. ---------------------------------//"
                          , rbind( paste("plant(", unlist( mapply( FUN = paste
-                                                                , sprintf("%7.2f",dbhco)
-                                                                , sprintf("%2i"  ,pftco)
-                                                                , sprintf("%7.2f",xco  )
-                                                                , sprintf("%7.2f",yco  )
+                                                                , sprintf("%7.2f",dbhco  )
+                                                                , sprintf("%2i"  ,pftco  )
+                                                                , sprintf("%7.2f",xco    )
+                                                                , sprintf("%7.2f",yco    )
+                                                                , sprintf("%7.2f",hiteco )
                                                                 , MoreArgs = list(sep=",")
                                                                 )#end mapply
                                                         )#end unlist

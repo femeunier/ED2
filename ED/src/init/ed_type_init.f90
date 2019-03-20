@@ -543,6 +543,8 @@ subroutine init_ed_cohort_vars(cpatch,ico, lsl)
       cpatch%mmean_leaf_water_int      (ico) = 0.0
       cpatch%mmean_wood_water_int      (ico) = 0.0
       cpatch%mmean_wflux_gw            (ico) = 0.0
+      cpatch%mmean_leaf_psi            (ico) = 0.0
+      cpatch%mmean_zRWU                (ico) = 0.0
       cpatch%mmean_wflux_gw_layer    (:,ico) = 0.0
       cpatch%mmean_wflux_wl            (ico) = 0.0
 

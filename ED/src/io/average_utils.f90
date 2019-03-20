@@ -4942,7 +4942,12 @@ module average_utils
                   cpatch%mmean_nppdaily        (ico) = cpatch%mmean_nppdaily        (ico)  &
                                                      + cpatch%dmean_nppdaily        (ico)  &
                                                      * ndaysi
-
+                  cpatch%mmean_leaf_psi        (ico) = cpatch%mmean_leaf_psi        (ico)  &
+                                                     + cpatch%leaf_psi              (ico)  &
+                                                     * ndaysi
+                  cpatch%mmean_zRWU            (ico) = cpatch%mmean_zRWU            (ico)  &
+                                                     + cpatch%zRWU                  (ico)  &
+                                                     * ndaysi
                   cpatch%mmean_dmax_leaf_psi   (ico) = cpatch%mmean_dmax_leaf_psi   (ico)  &
                                                      + cpatch%dmax_leaf_psi         (ico)  &
                                                      * ndaysi
@@ -5782,6 +5787,8 @@ module average_utils
                   cpatch%mmean_nppwood           (ico) = 0.0
                   cpatch%mmean_nppdaily          (ico) = 0.0
 
+                  cpatch%mmean_leaf_psi          (ico) = 0.0
+                  cpatch%mmean_zRWU              (ico) = 0.0
                   cpatch%mmean_dmax_leaf_psi     (ico) = 0.0
                   cpatch%mmean_dmax_wood_psi     (ico) = 0.0
                   cpatch%mmean_dmin_leaf_psi     (ico) = 0.0
@@ -6800,7 +6807,6 @@ module average_utils
                   cpatch%qmean_wshed_wg      (t,ico) = cpatch%qmean_wshed_wg      (t,ico)  &
                                                      + cpatch%fmean_wshed_wg        (ico)  &
                                                      * ndaysi
-
                   cpatch%qmean_leaf_psi      (t,ico) = cpatch%qmean_leaf_psi      (t,ico)  &
                                                      + cpatch%fmean_leaf_psi        (ico)  &
                                                      * ndaysi

@@ -2527,6 +2527,10 @@ module fuse_fiss_utils
                                            + cpatch%mmean_wood_water_int(donc) * dnplant
          cpatch%mmean_wflux_gw      (recc) = cpatch%mmean_wflux_gw      (recc) * rnplant   &
                                            + cpatch%mmean_wflux_gw      (donc) * dnplant
+         cpatch%mmean_leaf_psi      (recc) = cpatch%mmean_leaf_psi      (recc) * rnplant   &
+                                           + cpatch%mmean_leaf_psi      (donc) * dnplant
+         cpatch%mmean_zRWU          (recc) = cpatch%mmean_zRWU          (recc) * rnplant   &
+                                           + cpatch%mmean_zRWU          (donc) * dnplant
          cpatch%mmean_wflux_wl      (recc) = cpatch%mmean_wflux_wl      (recc) * rnplant   &
                                            + cpatch%mmean_wflux_wl      (donc) * dnplant
          do isl = 1,nzg

@@ -192,6 +192,7 @@ stext.acron <<- c("Sa","LSa","SaL","SiL","L","SaCL","SiCL","CL"
 #     Patch information for POV-Ray.                                                       #
 #------------------------------------------------------------------------------------------#
 pov.dbh.min    <<-    5    # Minimum DBH to be plotted
+pov.dbh.min_liana    <<-    1    # Minimum DBH to be plotted
 pov.patch.xmax <<-   16    # Size of each sub-plot in the x direction [m]
 pov.patch.ymax <<-   16    # Size of each sub-plot in the y direction [m]
 pov.nx.patch   <<-   25    # Number of sub-plots in each x transect

@@ -159,6 +159,9 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    emean$last.2yr.ecue           = rep(NA,times=ntimes)
    emean$last.3yr.ecue           = rep(NA,times=ntimes)
    emean$leaf.resp               = rep(NA,times=ntimes)
+   emean$zRWU                    = rep(NA,times=ntimes)
+   emean$leaf.psi                = rep(NA,times=ntimes)
+   emean$wflux_gw                = rep(NA,times=ntimes)
    emean$root.resp               = rep(NA,times=ntimes)
    emean$froot.resp              = rep(NA,times=ntimes)
    emean$croot.resp              = rep(NA,times=ntimes)
@@ -548,8 +551,11 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    szpft$ecue              = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
    szpft$etue              = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
    szpft$rue               = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
+   szpft$leaf.psi          = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
+   szpft$wflux_gw          = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
+   szpft$zRWU              = array(data=NA,dim=c(ntimes,ndbh+1,npft+1))
    #---------------------------------------------------------------------------------------#
-
+   
 
 
 
@@ -808,6 +814,9 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    cohort$assim.light    = list()
    cohort$assim.rubp     = list()
    cohort$assim.co2      = list()
+   cohort$leaf.psi       = list()
+   cohort$wflux_gw       = list()
+   cohort$zRWU           = list()
    cohort$assim.ratio    = list()
    cohort$npp            = list()
    cohort$cba            = list()
@@ -952,6 +961,9 @@ update.monthly <<- function(new.ntimes,old.datum,montha,yeara,inpref,slz.min){
    new.datum$emean$last.2yr.plresp   [idx ] = old.datum$emean$last.2yr.plresp     [sel ]
    new.datum$emean$last.3yr.plresp   [idx ] = old.datum$emean$last.3yr.plresp     [sel ]
    new.datum$emean$leaf.resp         [idx ] = old.datum$emean$leaf.resp           [sel ]
+   new.datum$emean$leaf.psi          [idx ] = old.datum$emean$leaf.psi            [sel ]
+   new.datum$emean$wfluw_gw          [idx ] = old.datum$emean$wfluw_gw            [sel ]
+   new.datum$emean$zRWU              [idx ] = old.datum$emean$zRWU                [sel ]
    new.datum$emean$root.resp         [idx ] = old.datum$emean$root.resp           [sel ]
    new.datum$emean$froot.resp        [idx ] = old.datum$emean$froot.resp          [sel ]
    new.datum$emean$croot.resp        [idx ] = old.datum$emean$croot.resp          [sel ]
@@ -1615,6 +1627,9 @@ update.monthly <<- function(new.ntimes,old.datum,montha,yeara,inpref,slz.min){
    new.datum$cohort$leaf.rshort      = old.datum$cohort$leaf.rshort
    new.datum$cohort$leaf.rlong       = old.datum$cohort$leaf.rlong
    new.datum$cohort$rue              = old.datum$cohort$rue
+   new.datum$cohort$leaf.psi         = old.datum$cohort$leaf.psi
+   new.datum$cohort$wflux_gw         = old.datum$cohort$wflux_gw
+   new.datum$cohort$zRWU             = old.datum$cohort$zRWU
    #---------------------------------------------------------------------------------------#
 
 

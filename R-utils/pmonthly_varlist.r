@@ -58,6 +58,32 @@ tspftdbh[[n]]     = list( vnam     = "lai"
                         , scsout   = TRUE
                         )#end list
 n                 = n + 1
+tspftdbh[[n]]     = list( vnam     = "leaf.psi"
+                          , desc     = "Leaf water potential"
+                          , e.unit   = untab$m
+                          , i.unit   = untab$m
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = TRUE
+                          , sas      = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list
+n                 = n + 1
+tspftdbh[[n]]     = list( vnam     = "zRWU"
+                          , desc     = "Mean depth of RWU"
+                          , e.unit   = untab$m
+                          , i.unit   = untab$m
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = TRUE
+                          , sas      = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list
+n                 = n + 1
 tspftdbh[[n]]     = list( vnam     = "wai"
                         , desc     = "Wood area index"
                         , e.unit   = untab$m2wom2

@@ -503,6 +503,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       qmean$can.temp    [m,] =   mymont$QMEAN.CAN.TEMP.PY     - t00
       qmean$leaf.temp   [m,] =   mymont$QMEAN.LEAF.TEMP.PY    - t00
       qmean$leaf.water  [m,] =   mymont$QMEAN.LEAF.WATER.PY
+      
       qmean$wood.temp   [m,] =   mymont$QMEAN.WOOD.TEMP.PY    - t00
       qmean$gnd.temp    [m,] =   mymont$QMEAN.GND.TEMP.PY     - t00
       qmean$atm.shv     [m,] =   mymont$QMEAN.ATM.SHV.PY      * kg2g
@@ -765,6 +766,23 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          taiconow          = laiconow + waiconow
          gppconow          = mymont$MMEAN.GPP.CO
          nppconow          = mymont$MMEAN.NPP.CO
+         
+         if ("MMEAN.LEAF.PSI.CO" %in% names(mymont)){
+           leaf.psiconow   = mymont$MMEAN.LEAF.PSI.CO
+         } else {
+           leaf.psiconow   = matrix(NA,dim(mymont$MMEAN.PLRESP.CO))
+         }
+         if ("MMEAN.ZRWU.CO" %in% names(mymont)){
+           zRWUconow   = mymont$MMEAN.ZRWU.CO
+         } else {
+           zRWUconow   = matrix(NA,dim(mymont$MMEAN.PLRESP.CO))
+         }
+         if ("MMEAN.WFLUX.GW.CO" %in% names(mymont)){
+           wfluxgwconow = mymont$MMEAN.WFLUX.GW.CO
+         } else {
+           wfluxgwconow = matrix(NA,dim(mymont$MMEAN.PLRESP.CO))
+         }
+         
          plrespconow       = mymont$MMEAN.PLRESP.CO
          assim.lightconow  = mymont$MMEAN.A.LIGHT.CO
          assim.rubpconow   = mymont$MMEAN.A.RUBP.CO
@@ -1474,6 +1492,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          storage.respconow   = NA
          plant.respconow     = NA
          assim.lightconow    = NA
+         leaf.psiconow       = NA
+         zRWUconow           = NA
          assim.rubpconow     = NA
          assim.co2conow      = NA
          assim.ratioconow    = NA
@@ -1560,6 +1580,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       # build weighted averages.                                                           #
       #------------------------------------------------------------------------------------#
       w.nplant  = nplantconow  * areaconow
+      w.wfluxgwconow = wfluxgwconow * areaconow
       w.lai     = laiconow     * areaconow
       w.wai     = waiconow     * areaconow
       w.tai     = taiconow     * areaconow
@@ -1567,9 +1588,6 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       w.balive  = baliveconow  * w.nplant
       w.basarea = baconow      * w.nplant
       #------------------------------------------------------------------------------------#
-
-
-
 
       #------------------------------------------------------------------------------------#
       #     Build the LU arrays.                                                           #
@@ -1903,6 +1921,14 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
                                                          , w     = w.nplant         [sel]
                                                          , na.rm = TRUE
                                                          )#end weighted.mean
+               szpft$leaf.psi     [m,d,p] = weighted.mean( x     = leaf.psiconow    [sel]
+                                                         , w     = w.nplant         [sel]
+                                                         , na.rm = TRUE
+                                                         )#end weighted.mean
+               szpft$zRWU         [m,d,p] = weighted.mean( x     = zRWUconow        [sel]
+                                                         , w     = w.wfluxgwconow   [sel]
+                                                         , na.rm = TRUE
+                                                         )#end weighted.mean
                szpft$i.npp        [m,d,p] = weighted.mean( x     = nppconow         [sel]
                                                          , w     = w.nplant         [sel]
                                                          , na.rm = TRUE
@@ -2205,6 +2231,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       #------------------------------------------------------------------------------------#
       #       Build the derived variables.                                                 #
       #------------------------------------------------------------------------------------#
+      emean$leaf.psi        [m] = szpft$leaf.psi       [m,ndbh+1,npft+1]
+      emean$zRWU            [m] = szpft$zRWU           [m,ndbh+1,npft+1]
       emean$leaf.resp       [m] = szpft$leaf.resp      [m,ndbh+1,npft+1]
       emean$stem.resp       [m] = szpft$stem.resp      [m,ndbh+1,npft+1]
       emean$root.resp       [m] = szpft$root.resp      [m,ndbh+1,npft+1]
@@ -2569,6 +2597,8 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          cohort$assim.light  [[clab]] = assim.lightconow
          cohort$assim.rubp   [[clab]] = assim.rubpconow
          cohort$assim.co2    [[clab]] = assim.co2conow
+         cohort$leaf.psi     [[clab]] = leaf.psiconow
+         cohort$zRWU         [[clab]] = zRWUconow
          cohort$assim.ratio  [[clab]] = assim.ratioconow
          cohort$npp          [[clab]] = nppconow
          cohort$cba          [[clab]] = cbaconow

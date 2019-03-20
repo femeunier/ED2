@@ -1411,17 +1411,6 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
          !---------------------------------------------------------------------------------!
 
 	 
-         open(31,file='albedo_par.dat')
-         write(31,*) alp
-         close(31)
-
-         open(32,file='albedo_nir.dat')
-         write(32,*) aln
-         close(32)
-
-         open(33,file='LAI.dat')
-         write(33,*) cpatch%lai
-         close(33)
 
          if (ipa < 10) then
 	    write(filename,'("patches/albedo_par",I1,".dat")')ipa
@@ -1744,6 +1733,24 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
       !------------------------------------------------------------------------------------!
 
    end do
+
+   open(31,file='albedo_par.dat')
+   write(31,*) alp
+   close(31)
+
+   open(32,file='albedo_nir.dat')
+   write(32,*) aln
+   close(32)
+
+   open(33,file='LAI.dat')
+   write(33,*) cpatch%lai
+   close(33)
+
+   if (csite%npatches>1) then
+      open(34,file='patches/Npatches.dat')
+      write(34,*) csite%npatches
+      close(34)
+   end if
 
    !---------------------------------------------------------------------------------------!
    !$OMP END PARALLEL DO

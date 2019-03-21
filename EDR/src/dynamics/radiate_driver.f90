@@ -466,7 +466,7 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
    !----- Loop over the patches -----------------------------------------------------------!
    do ipa = 1,csite%npatches
       cpatch => csite%patch(ipa)
-      print*,ipa,csite%ncohorts,sum(cpatch%lai)
+      print*,ipa,cpatch%ncohorts,sum(cpatch%lai)
 
       ibuff = 1
       !$ ibuff = OMP_get_thread_num()+1
@@ -566,6 +566,7 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
                cpatch%sla(ico) = SLA(cpatch%pft(ico))
 
                call area_indices(cpatch, ico)
+               !print*,cpatch%dbh(ico),cpatch%nplant(ico), cpatch%pft(ico),cpatch%sla(ico),cpatch%bleaf(ico),cpatch%lai(ico)
 
                !---------------------------------------------------------------------------!
                !     Here we only tell the true LAI if the leaf is resolvable, and the     !
@@ -609,12 +610,12 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
                !      Decide whether to assume infinite crown, or the crown area allometry !
                ! method as in Dietze and Clark (2008).                                     !
                !---------------------------------------------------------------------------!
-!               select case (crown_mod)
-!               case (0)
-!                  radscr(ibuff)%CA_array(cohort_count) = 1.d0
-!               case (1)
+               select case (crown_mod)
+               case (0)
+                  radscr(ibuff)%CA_array(cohort_count) = 1.d0
+               case (1)
                   radscr(ibuff)%CA_array(cohort_count) = dble(cpatch%crown_area(ico))
-!               end select
+               end select
                !---------------------------------------------------------------------------!
             end if
             !------------------------------------------------------------------------------!
@@ -709,7 +710,7 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
       end select
       !------------------------------------------------------------------------------------!
 
-
+      print*,cohort_count
       !------------------------------------------------------------------------------------!
       csite%rshort_s_diffuse(:,ipa) = 0.0
       csite%rshort_s_beam   (:,ipa) = 0.0
@@ -1732,7 +1733,6 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
          csite%rlong_g (ipa) = 0.0
       end if
       !------------------------------------------------------------------------------------!
-
    end do
 
    open(31,file='albedo_par.dat')

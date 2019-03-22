@@ -567,6 +567,7 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
 
                call area_indices(cpatch, ico)
                !print*,cpatch%dbh(ico),cpatch%nplant(ico), cpatch%pft(ico),cpatch%sla(ico),cpatch%bleaf(ico),cpatch%lai(ico)
+               !print*,cpatch%crown_area(ico)
 
                !---------------------------------------------------------------------------!
                !     Here we only tell the true LAI if the leaf is resolvable, and the     !
@@ -1449,6 +1450,18 @@ subroutine sfcrad_ed(cosz,cosaoi,csite,mzg,mzs,ntext_soil,ncol_soil,maxcohort,tu
 	 open(33,file=filename)
          write(33,*) cpatch%lai
          close(33)
+
+         if (ipa < 10) then
+	    write(filename,'("patches/CA",I1,".dat")')ipa
+	 elseif (ipa < 100) then
+	    write(filename,'("patches/CA",I2,".dat")')ipa
+	 else 
+	    write(filename,'("patches/CA",I3,".dat")')ipa
+         end if
+         
+	 open(34,file=filename)
+         write(34,*) cpatch%crown_area
+         close(34)
 
  
          

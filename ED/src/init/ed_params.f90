@@ -257,7 +257,8 @@ subroutine init_ed_misc_coms
       , max_thsums_dist      & ! intent(out)
       , max_poihist_dist     & ! intent(out)
       , max_poi99_dist       & ! intent(out)
-      , suppress_h5_warnings ! ! intent(out)
+      , suppress_h5_warnings & ! intent(out)
+      , flag_EDRrun          ! ! intent(out)
    implicit none
 
 
@@ -267,6 +268,9 @@ subroutine init_ed_misc_coms
    vary_hyd  = 1
    !---------------------------------------------------------------------------------------!
 
+   ! Assumes it is a ED run
+   flag_EDRrun = .false.
+   
 
    !----- Number of years to ignore demography when starting a run. -----------------------!
    burnin = 0

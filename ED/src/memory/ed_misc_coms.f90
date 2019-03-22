@@ -200,6 +200,10 @@ Module ed_misc_coms
    real    :: init_fsn 
    real    :: init_msn 
 
+
+   ! Flag to know if it is a EDR run
+   logical :: flag_EDRrun
+
    ! Logical Switches for various memory structures
 
    logical :: fast_diagnostics       !! If ifoutput,idoutput,and imoutput are zero, then

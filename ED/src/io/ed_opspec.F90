@@ -449,7 +449,8 @@ subroutine ed_opspec_times
                            , outfast          & ! intent(in)
                            , outstate         & ! intent(in)
                            , unitfast         & ! intent(in)
-                           , unitstate        ! ! intent(in)
+                           , unitstate        & ! ! intent(in)
+			   , flag_EDRrun
    use consts_coms  , only : day_sec          & ! intent(in)
                            , hr_sec           ! ! intent(in)
    use grid_coms    , only : timmax           ! ! intent(in)
@@ -1060,6 +1061,10 @@ subroutine ed_opspec_times
       ifaterr=ifaterr+1
    end if
 
+   if (timmax <= 86401) then
+      flag_EDRrun = .TRUE.
+   end if
+
    !---------------------------------------------------------------------------------------!
    !    If we made up to this point, find frqsum so we make sure that the main time step   !
    ! and the radiation are both divisors of the frequency of output.                       !
@@ -1154,7 +1159,8 @@ subroutine ed_opspec_misc
                                     , igrass                       & ! intent(in)
                                     , growth_resp_scheme           & ! intent(in)
                                     , storage_resp_scheme          & ! intent(in)
-                                    , min_site_area                ! ! intent(in)
+                                    , min_site_area                & ! ! intent(in)
+                                    , flag_EDRrun                  ! ! intent(in)
    use canopy_air_coms       , only : icanturb                     & ! intent(in)
                                     , isfclyrm                     & ! intent(in)
                                     , ied_grndvap                  & ! intent(in)
@@ -2198,7 +2204,7 @@ end do
                     ,icanrad,'...'
       ifaterr = ifaterr +1
       call opspec_fatal(reason,'opspec_misc')
-   elseif (icanrad /= 0 .and. crown_mod == 1) then
+   elseif ( (icanrad /= 0 .and. crown_mod == 1).and.(.not.flag_EDRrun)) then
       write(reason,fmt='(a)') 'CROWN_MOD must be turned off when ICANRAD is 1 or 2...'
       ifaterr = ifaterr +1
       call opspec_fatal(reason,'opspec_misc')

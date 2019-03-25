@@ -38,6 +38,7 @@ module fuse_fiss_utils
       real                                       :: tophgt    ! Maximum height considered
       logical                                    :: sorted    ! Patch is already sorted
       logical        , dimension(:), allocatable :: attop     ! Top cohorts, for tie-break
+      logical        , dimension(:), allocatable :: is_liana  ! Liana flag for tie-break
       !------------------------------------------------------------------------------------!
       
       !----- No need to sort an empty patch or a patch with a single cohort. --------------!
@@ -67,6 +68,7 @@ module fuse_fiss_utils
 
       !----- Allocate the logical flag for tie-breaking. ----------------------------------!
       allocate(attop(cpatch%ncohorts))
+      allocate(is_liana(cpatch%ncohorts))
 
       ico = 0
       !---- Loop until all cohorts were sorted. -------------------------------------------!
@@ -77,10 +79,15 @@ module fuse_fiss_utils
          tophgt = maxval(cpatch%hite)
 
          !----- Find all cohorts that are at this height. ---------------------------------!
-         attop  = cpatch%hite == tophgt
+         attop  = (cpatch%hite == tophgt)
 
          !----- Find the fattest cohort at a given height. --------------------------------!
-         tallco = maxloc(cpatch%dbh,dim=1,mask=attop)
+         if (maxval(cpatch%pft,dim=1,mask=attop) == 17) then ! liana cohorts go on top of trees
+	    is_liana = (cpatch%pft == 17)
+	    tallco = maxloc(cpatch%dbh,dim=1,mask=(attop .and. is_liana))
+         else ! regular tree case
+            tallco = maxloc(cpatch%dbh,dim=1,mask=attop)
+         end if
 
          !----- Copy to the scratch structure. --------------------------------------------!
          call copy_patchtype(cpatch,temppatch,tallco,tallco,ico,ico)
@@ -96,8 +103,9 @@ module fuse_fiss_utils
       call deallocate_patchtype(temppatch)
       deallocate(temppatch)
 
-      !----- De-allocate the logical flag. ------------------------------------------------!
+      !----- De-allocate the logical flags. ------------------------------------------------!
       deallocate(attop)
+      deallocate(is_liana)
 
       return
 

@@ -14,10 +14,11 @@ outroot        = "/home/femeunier/Documents/ED2/ED/run/Figures"  # Directory for
 monthbeg       = 1       # First month to useyearbeg  
 yearbeg        = 1500    # First year to consider
 place          = "paracou"
-ntimes         = 12
+ntimes         = 24
 slz.min        = -8.0 
 
 sasmonth       = c(2,5,8,11)    # Months for SAS plots (short runs)
+emean.line    = TRUE
 n.density      = 256            # Number of density points
 
 #------ Miscellaneous settings. -----------------------------------------------------------#
@@ -94,7 +95,7 @@ datum      = create.monthly( ntimes  = ntimes
                              , inpref  = inpref
                              , slz.min = slz.min) 
 
-datum = read.q.files(datum=datum,ntimes=ntimes,tresume=1,sasmonth=sasmonth)
+datum = read.q.files(datum=datum,ntimes=ntimes,tresume=1,sasmonth=seq(12))
 
 #============================================================================#
 #----- Convert model outputs
@@ -1775,7 +1776,8 @@ for (v in 1:nplotpatch){
   this        = patchpdf[[vnam]]$edensity
   plotit      = ( plotit && any(is.finite(this$x),na.rm=TRUE)
                   && any(is.finite(this$y),na.rm=TRUE) 
-                  && any(is.finite(this$z),na.rm=TRUE) )
+                  && any(is.finite(this$z),na.rm=TRUE)  
+                  && any(!isZero(this$y)))
   
   #------------------------------------------------------------------------------------#
   #     Find levels, and expand PDF scale in case it is a constant.                    #
@@ -2302,3 +2304,165 @@ for (v in 1:ntspftdbh){
   }#end if
   #------------------------------------------------------------------------------------#
 }#end for npsas
+
+
+#---------------------------------------------------------------------------#
+#----------------------------- Patch plots ---------------------------------#
+#---------------------------------------------------------------------------#
+
+patch_var <- datum$patch_var
+
+cat("+ Time series patch plots","\n")
+
+for (v in seq(npatch_plots)){
+  #----------------- Load settings for this variable.--------------------------------#
+  thisplot     = patch_plots[[v]]
+  vname        = thisplot$vnam
+  description  = thisplot$desc
+  unit         = thisplot$e.unit
+  plog         = thisplot$plog
+  plotit       = thisplot$pft
+  
+  
+  #----- Check whether the user wants to have this variable plotted. ------------------#
+  if (plotit && any(selpft)){
+    
+    #---------------------------------------------------------------------------------#
+    #    Check whether the time series directory exists.  If not, create it.          #
+    #---------------------------------------------------------------------------------#
+    outdir = paste(outpref,"tspatch",sep="/")
+    if (! file.exists(outdir)) dir.create(outdir)
+    cat("      + ",description," time series for all patches...","\n")
+    
+    
+    #----- Load variable -------------------------------------------------------------#
+    thisvar = patch_var[[vname]]
+    if (plog){
+      #----- Eliminate non-positive values in case it is a log plot. ----------------#
+      thisvar[thisvar <= 0] = NA
+    }#end if
+    #---------------------------------------------------------------------------------#
+    
+    # Loop over patches
+    
+    maxipa <- dim(patch_var[[1]])[1]
+    
+    for (ipa in 1:maxipa){
+      
+      patchdir <- paste(outdir,paste("patch",ipa,sep=""),sep="/")
+      if (! file.exists(patchdir)) dir.create(patchdir)
+      #----- Loop over output formats. -------------------------------------------------#
+      for (o in 1:nout){
+        #----- Open file. -------------------------------------------------------------#
+        fichier = paste(patchdir,"/",vname,"-",suffix,".",outform[o],sep="")
+        if(outform[o] == "x11"){
+          X11(width=size$width,height=size$height,pointsize=ptsz)
+        }else if(outform[o] == "png"){
+          png(filename=fichier,width=size$width*depth,height=size$height*depth
+              ,pointsize=ptsz,res=depth)
+        }else if(outform[o] == "eps"){
+          postscript(file=fichier,width=size$width,height=size$height
+                     ,pointsize=ptsz,paper=size$paper)
+        }else if(outform[o] == "pdf"){
+          pdf(file=fichier,onefile=FALSE
+              ,width=size$width,height=size$height,pointsize=ptsz,paper=size$paper)
+        }#end if
+        #------------------------------------------------------------------------------#
+        
+        
+        #------------------------------------------------------------------------------#
+        #     Find the limit, make some room for the legend, and in case the field is  #
+        # a constant, nudge the limits so the plot command will not complain.          #
+        #------------------------------------------------------------------------------#
+        xlimit = pretty.xylim(u=as.numeric(datum$tomonth),fracexp=0.0,is.log=FALSE)
+        ylimit = pretty.xylim(u=thisvar[ipa,selpft,]         ,fracexp=0.0,is.log=plog )
+        if (plog){
+          xylog    = "y"
+          ydrought = c( exp(ylimit[1] * sqrt(ylimit[1]/ylimit[2]))
+                        , exp(ylimit[2] * sqrt(ylimit[2]/ylimit[1]))
+          )#end c
+        }else{
+          xylog    = ""
+          ydrought = c(ylimit[1] - 0.5 * diff(ylimit), ylimit[2] + 0.5 * diff(ylimit))
+        }#end if
+        #------------------------------------------------------------------------------#
+        
+        
+        #----- Plot settings. ---------------------------------------------------------#
+        letitre       = paste(description,lieu,sep=" - ")
+        ley           = desc.unit(desc=description,unit=unit)
+        cols          = pft$colour[selpft]
+        legs          = pft$name  [selpft]
+        #------------------------------------------------------------------------------#
+        
+        
+        #------------------------------------------------------------------------------#
+        #     Split the plot into two windows.                                         #
+        #------------------------------------------------------------------------------#
+        par(par.user)
+        layout(mat=rbind(2,1),heights=c(4.8,1.2))
+        #------------------------------------------------------------------------------#
+        
+        
+        
+        #------------------------------------------------------------------------------#
+        #      First plot: legend.                                                     #
+        #------------------------------------------------------------------------------#
+        par(mar=c(0.1,4.6,0.1,2.1))
+        plot.new()
+        plot.window(xlim=c(0,1),ylim=c(0,1))
+        legend( x      = "bottom"
+                , inset  = 0.0
+                , legend = legs
+                , col    = cols
+                , lwd    = lwidth
+                , ncol   = min(pretty.box(n.selpft)$ncol,3)
+                , title  = expression(bold("Plant Functional Type"))
+        )#end legend
+        #------------------------------------------------------------------------------#
+        
+        #------------------------------------------------------------------------------#
+        #      Main plot.                                                              #
+        #------------------------------------------------------------------------------#
+        par(mar=c(4.1,4.6,4.1,2.1))
+        plot.new()
+        plot.window(xlim=xlimit,ylim=ylimit,log=xylog)
+        axis(side=1,at=whenplot8$levels,labels=whenplot8$labels,padj=whenplot8$padj)
+        axis(side=2,las=1)
+        box()
+        title(main=letitre,xlab="Year",ylab=ley,cex.main=0.7)
+        if (drought.mark){
+          for (n in 1:ndrought){
+            rect(xleft  = drought[[n]][1],ybottom = ydrought[1]
+                 ,xright = drought[[n]][2],ytop    = ydrought[2]
+                 ,col    = grid.colour,border=NA)
+          }#end for
+        }#end if
+        #----- Plot grid. -------------------------------------------------------------#
+        if (plotgrid){ 
+          abline(v=whenplot8$levels,h=axTicks(side=2),col=grid.colour,lty="solid")
+        }#end if
+        #----- Plot lines. ------------------------------------------------------------#
+        for (n in 1:(npft+1)){
+          if (selpft[n]){
+            lines(datum$tomonth,thisvar[ipa,n,],type="l",col=pft$colour[n],lwd=lwidth,lty=ltypes[n])
+          }#end if
+        }#end for
+        #------------------------------------------------------------------------------#
+        
+        
+        #----- Close the device. ------------------------------------------------------#
+        if (outform[o] == "x11"){
+          locator(n=1)
+          dev.off()
+        }else{
+          dev.off()
+        }#end if
+        dummy=clean.tmp()
+        #------------------------------------------------------------------------------#
+      } #end for outform
+     } # end for patch loop
+  }#end if (plotit)
+}
+  
+  

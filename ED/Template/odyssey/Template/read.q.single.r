@@ -8,13 +8,13 @@ graphics.off()
 #==========================================================================================#
 
 here           = getwd()    # Current directory.
-there          = "/home/femeunier/Documents/ED2/ED/run/analy/"  # Directory where analyses/history are 
+there          = "/home/femeunier/Documents/ED2/ED/run/analy"  # Directory where analyses/history are 
 srcdir         = "/home/femeunier/Documents/ED2/R-utils" # Source  directory
 
 monthbeg       = 1   # First month to useyearbeg        = thisyeara    # First year to consider
 yearbeg        = 1500    # First year to consider
 place          = "paracou"
-ntimes         = 9
+ntimes         = 16
 slz.min        = -8.0 
 
 sasmonth       =  seq(1,ntimes)
@@ -30,7 +30,138 @@ datum      = create.monthly( ntimes  = ntimes
                              , inpref  = inpref
                              , slz.min = slz.min
                              ) 
+
 datum = read.q.files(datum=datum,ntimes=ntimes,tresume=1,sasmonth=sasmonth)
+
+ipft=17
+
+# h5file <- '/home/femeunier/Documents/ED2/ED/run/histo/bci-S-2004-01-01-000000-g01.h5'
+# 
+# mymont    <- lapply(h5read_opt(h5file),FUN=aperm)
+# names(mymont) <- gsub(x = names(mymont), pattern = "\\_", replacement = ".") 
+# 
+# ipaconow <- rep(sequence(mymont$NPATCHES.GLOBAL),times=mymont$PACO.N)
+# PFT0 <- mymont$PFT
+# HITE0 <- mymont$HITE
+# DDBH0 <- mymont$DELTA.DBH
+# DBH0 <- mymont$DBH
+# plot(DBH0[PFT0==ipft],HITE0[PFT0==ipft],col='black',type='p')
+
+itime=1
+PFT=datum$cohort$pft[[itime]]
+HITE=datum$cohort$height[[itime]]
+DBH=datum$cohort$dbh[[itime]]
+plot(DBH[PFT==ipft],HITE[PFT==ipft],ylim=c(0,36),col='black',type='p',xlab="DBH",ylab="HEIGHT",xlim=c(0,30))
+
+itime=13
+PFT2=datum$cohort$pft[[itime]]
+HITE2=datum$cohort$height[[itime]]
+DBH2=datum$cohort$dbh[[itime]]
+lines(DBH2[PFT2==ipft],HITE2[PFT2==ipft],col='red',type='p')
+
+itime=ntimes
+PFT2=datum$cohort$pft[[itime]]
+HITE2=datum$cohort$height[[itime]]
+DBH2=datum$cohort$dbh[[itime]]
+lines(DBH2[PFT2==ipft],HITE2[PFT2==ipft],col='green',type='p')
+
+Npatches <- length(unique(datum$cohort$ipa[[1]]))
+x0 <- c(0,0)
+x1 <- c(0,0)
+
+for (ipa in seq(Npatches)){
+  pos1 <- which(datum$cohort$ipa[[1]] == ipa) 
+  DBH1 <- datum$cohort$dbh[[1]][pos1][datum$cohort$pft[[1]][pos1]==17]
+  HITE1 <- datum$cohort$height[[1]][pos1][datum$cohort$pft[[1]][pos1]==17]
+  
+  pos2 <- which(datum$cohort$ipa[[ntimes]] == ipa) 
+  DBH2_temp <- datum$cohort$dbh[[ntimes]][pos2][datum$cohort$pft[[ntimes]][pos2]==17]
+  HITE2_temp <- datum$cohort$height[[ntimes]][pos2][datum$cohort$pft[[ntimes]][pos2]==17]
+  
+  Ncohorts <- length(DBH1)
+  
+  if (Ncohorts>0){
+    DBH2 <- DBH2_temp[1:(Ncohorts)]
+    HITE2 <- HITE2_temp[1:(Ncohorts)]
+    
+    for (icohort in seq(Ncohorts)){
+      dist <- colSums((rbind(rep(DBH1[icohort],Ncohorts),rep(HITE1[icohort],Ncohorts)) - rbind(DBH2,HITE2))^2)
+      dist_min <- which(dist == min(dist))
+      x0 <- rbind(x0,c(DBH1[icohort],HITE1[icohort]))
+      x1 <- rbind(x1,c(DBH2[dist_min],HITE2[dist_min]))
+    }
+  }
+}
+arrows(x0 = x0[2:dim(x0)[1],1], y0 = x0[2:dim(x0)[1],2], x1 = x1[2:dim(x1)[1],1], y1 = x1[2:dim(x1)[1],2],
+       length=0.05)
+dbhs=seq(0,30,length.out = 1000)
+b1ht=0.11
+b2ht=0.87
+hmax=35
+href=61.7
+h <- pmin(hmax,href*(1-exp(-b1ht*(dbhs**b2ht))))
+lines(dbhs,h,lty=2,col='black')
+
+b1ht=0.035
+b2ht=0.69
+h_tree <- pmin(hmax,href*(1-exp(-b1ht*(dbhs**b2ht))))
+lines(dbhs,h_tree,lty=2,col='darkgreen')
+
+##########################################################################
+
+cohort <- datum$cohort
+
+plot.new()
+itime <- ntimes
+ipft <- 17
+pft <- cohort$pft[[itime]]
+plot(cohort$dbh[[itime]][pft==ipft]-cohort$delta_DBH[[itime]][pft==ipft],cohort$height[[itime]][pft==ipft])
+pft <- cohort$pft[[1]]
+lines(cohort$dbh[[1]][pft==ipft]-cohort$delta_DBH[[1]][pft==ipft],cohort$height[[1]][pft==ipft],col='red',type='p')
+
+dbhs=seq(0,30,length.out = 1000)
+b1ht=0.11
+b2ht=0.87
+hmax=35
+href=61.7
+h <- pmin(hmax,href*(1-exp(-b1ht*(dbhs**b2ht))))
+lines(dbhs,h,lty=2,col='black')
+
+
+###########################################################################
+
+itime=1
+ipft=17
+ipa=10
+
+patch<-datum$patch
+PA=datum$cohort$ipa[[itime]]
+pos=(PA==ipa)
+PFT=datum$cohort$pft[[itime]][pos]
+HITE=datum$cohort$height[[itime]][pos]
+DHITE=datum$cohort$delta_hite[[itime]][pos]
+DBH=datum$cohort$dbh[[itime]][pos]
+
+plot(DBH[PFT==ipft],HITE[PFT==ipft],ylim=c(0,36),xlim=c(0,200))
+
+itime=ntimes
+PA=datum$cohort$ipa[[itime]]
+pos=(PA==ipa)
+PFT2=datum$cohort$pft[[itime]][pos]
+HITE2=datum$cohort$height[[itime]][pos]
+DHITE=datum$cohort$delta_hite[[itime]][pos]
+DBH2=datum$cohort$dbh[[itime]][pos]
+
+lines(DBH2[PFT2==ipft],HITE2[PFT2==ipft],col='red',type='p')
+
+################################################################
+
+tapply(X=nplant[pos],INDEX = PFT[pos],FUN=sum)
+sum(tapply(X=nplant[pos],INDEX = PFT[pos],FUN=sum))
+tapply(X=LAI[pos],INDEX = PFT[pos],FUN=sum)
+tapply(X=HITE[pos],INDEX = PFT[pos],FUN=mean)
+tapply(X=PFT[pos],INDEX = PFT[pos],FUN=length)
+
 
 ###########################################################################
 
@@ -143,8 +274,4 @@ for (k in seq(krdepth,16)){
   root_frac[k] = ((root_beta ** (above_layer_depth   / (-slz8[krdepth]))
                 -(root_beta) ** (current_layer_depth / (-slz8[krdepth]))))
 }
-
-
-
-
 plot(dbh[pft==17],h[pft==17])

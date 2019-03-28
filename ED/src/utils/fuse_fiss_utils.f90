@@ -11,7 +11,6 @@ module fuse_fiss_utils
                             , allocate_patchtype    & ! subroutine
                             , allocate_sitetype     & ! subroutine
                             , deallocate_sitetype   & ! subroutine
-                            , copy_sitetype_mask    & ! subroutine
                             , copy_sitetype         & ! subroutine
                             , copy_patchtype_mask   ! ! subroutine
 
@@ -238,7 +237,8 @@ module fuse_fiss_utils
 
       use ed_state_vars, only : polygontype        & ! Structure
                               , sitetype           & ! Structure
-                              , patchtype          ! ! Structure
+                              , patchtype          & ! ! Structure
+			      , copy_sitetype_mask
       use disturb_coms , only : min_patch_area     ! ! intent(in)
       implicit none
       !----- Arguments --------------------------------------------------------------------!
@@ -326,7 +326,8 @@ module fuse_fiss_utils
       use update_derived_props_module
       use ed_state_vars, only : polygontype        & ! Structure
                               , sitetype           & ! Structure
-                              , patchtype          ! ! Structure
+                              , patchtype          & ! ! Structure
+			      , copy_sitetype_mask
       use disturb_coms , only : min_patch_area     ! ! intent(in)
       use allometry    , only : size2bl        ! ! function
       use ed_max_dims  , only : n_dist_types       & ! intent(in)
@@ -998,14 +999,17 @@ module fuse_fiss_utils
                    !cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
 
 
-		  if (.NOT.(cpatch%pft(ico)==17)) then ! Not a liana
-		  	cpatch%hite (ico)  = dbh2h(cpatch%pft(ico), cpatch%dbh(ico))
-			cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
+		  if (.not.(cpatch%pft(ico)==17)) then ! Not a liana
+		     cpatch%hite (ico)  = dbh2h(cpatch%pft(ico), cpatch%dbh(ico))
+		     cpatch%hite (inew) = dbh2h(cpatch%pft(inew), cpatch%dbh(inew))
 		  else ! Liana
-			cpatch%hite (ico)  = cpatch%hite(ico)
-			cpatch%hite (inew) = cpatch%hite(ico)
+		     cpatch%hite (ico)  = cpatch%hite(ico)
+		     cpatch%hite (inew) = cpatch%hite(inew)
 		  end if
                end if
+
+
+
                !---------------------------------------------------------------------------!
 
                ! since biomass has changed, we need to modify wood water_int
@@ -1079,7 +1083,8 @@ module fuse_fiss_utils
    subroutine fuse_2_cohorts(cpatch,donc,recc,can_prss,can_shv,lsl &
                             ,fuse_initial)
       use ed_state_vars      , only : patchtype              ! ! Structure
-      use pft_coms           , only : is_grass               ! ! intent(in)
+      use pft_coms           , only : is_grass               & ! intent(in)
+				    , hgt_max                ! ! intent(in)
       use therm_lib          , only : uextcm2tl              & ! subroutine
                                     , vpdefil                & ! subroutine
                                     , qslif                  ! ! function
@@ -1088,7 +1093,8 @@ module fuse_fiss_utils
                                     , bl2dbh                 & ! function
                                     , bl2h                   & ! function
                                     , dbh2h                  & ! function
-                                    , dbh2sf                 ! ! function
+                                    , dbh2sf                 & ! function
+				    , delta_dbh              ! ! function
       use ed_max_dims        , only : n_mort                 ! ! intent(in)
       use ed_misc_coms       , only : writing_long           & ! intent(in)
                                     , writing_eorq           & ! intent(in)
@@ -1185,10 +1191,12 @@ module fuse_fiss_utils
           cpatch%bdead(recc) = cpatch%bdead(recc) * rnplant + cpatch%bdead(donc) * dnplant
           cpatch%dbh(recc)   = bd2dbh(cpatch%pft(recc), cpatch%bdead(recc))
 
-	  if (.NOT.(cpatch%pft(donc)==17)) then ! Not a liana
+	  if (.not.(cpatch%pft(donc)==17)) then ! Not a liana
               cpatch%hite(recc)  = dbh2h(cpatch%pft(recc),  cpatch%dbh(recc))
+	      cpatch%delta_dbh (recc) = (cpatch%delta_dbh (recc) + cpatch%delta_dbh (donc))/2.
 	  else ! Liana
-	      cpatch%hite(recc) = (cpatch%hite(recc) +cpatch%hite(donc))/2.
+	      cpatch%hite(recc) = (cpatch%hite(recc))
+	      cpatch%delta_dbh (recc) = delta_dbh (cpatch%hite(recc),cpatch%pft(recc),cpatch%dbh(recc))
 	  end if
           !--------------------------------------------------------------------------------!
       end if
@@ -3094,7 +3102,8 @@ module fuse_fiss_utils
       use ed_state_vars       , only : edtype              & ! structure
                                      , polygontype         & ! structure
                                      , sitetype            & ! structure
-                                     , patchtype           ! ! structure
+                                     , patchtype           & ! ! structure
+				     , copy_sitetype_mask
       use fusion_fission_coms , only : ff_nhgt             & ! intent(in)
                                      , niter_patfus        & ! intent(in)
                                      , dark_cumlai_max     & ! intent(in)

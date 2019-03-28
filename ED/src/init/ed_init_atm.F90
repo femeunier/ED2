@@ -4,6 +4,7 @@
 ! conditions plus some soil parameters.                                                    !
 !------------------------------------------------------------------------------------------!
 subroutine ed_init_atm()
+   use structural_growth_module , only : shorten_liana_cohorts ! ! subroutine
    use stable_cohorts
    use update_derived_props_module
    use ed_misc_coms          , only : runtype                & ! intent(in)
@@ -52,6 +53,8 @@ subroutine ed_init_atm()
    use met_driver_coms       , only : met_driv_state         ! ! structure
    use canopy_struct_dynamics, only : canopy_turbulence      ! ! subroutine
    use budget_utils          , only : update_budget          ! ! subroutine
+
+
    !$ use omp_lib
    implicit none
    !----- Local variables. ----------------------------------------------------------------!
@@ -437,6 +440,8 @@ subroutine ed_init_atm()
                                                * cpoly%area(isi) * site_area_i             &
                                                * poly_area_i
                   end do cohortloop3
+                  ! Rescale height of lianas
+                  call shorten_liana_cohorts(cpatch)
                end do patchloop3
             end do siteloop3
 

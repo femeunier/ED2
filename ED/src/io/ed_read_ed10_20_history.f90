@@ -23,7 +23,8 @@ subroutine read_ed10_ed20_history_file
                              , include_pft_ag      & ! intent(in)
                              , pft_1st_check       & ! intent(in)
                              , agf_bs              & ! intent(in)
-                             , include_these_pft   ! ! intent(in)
+                             , include_these_pft   & ! ! intent(in)
+			     , hgt_max
    use ed_misc_coms   , only : sfilin              & ! intent(in)
                              , ied_init_mode       ! ! intent(in)
    use consts_coms    , only : pio180              & ! intent(in)
@@ -41,6 +42,7 @@ subroutine read_ed10_ed20_history_file
    use allometry      , only : bd2dbh              & ! function
                              , dbh2h               & ! function
                              , dbh2bd              & ! function
+                             , delta_dbh           & ! function
                              , size2bl             & ! function
                              , ed_biomass          & ! function
                              , area_indices        ! ! subroutine
@@ -762,7 +764,9 @@ subroutine read_ed10_ed20_history_file
 
 			   if (ipft(ic)==17) then
 			     cpatch%hite(ic2)  = hite(ic)
-			   else 
+			     cpatch%delta_dbh  (ic2)  = delta_dbh (cpatch%hite(ic2),cpatch%pft(ic2),cpatch%dbh(ic2)) 
+			   else
+			     cpatch%delta_dbh  (ic2)  = 0. 
 			     cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
 			   end if  
 
@@ -776,14 +780,17 @@ subroutine read_ed10_ed20_history_file
                            ! biomass varies less than DBH under different allometric       !
                            ! equations.                                                    !
                            !---------------------------------------------------------------!
+                           
                            if (bdead(ic) > 0.0) then
                               cpatch%bdead(ic2) = max(bdead(ic),min_bdead(ipft(ic)))
                               cpatch%dbh(ic2)   = bd2dbh(ipft(ic),bdead(ic))
 			      
-			      ! In case of liana, we read the hite as well 
+			      ! In case of liana, we read the hite as well and we calculte the delta with the allometry
 			      if (ipft(ic)==17) then
 			        cpatch%hite(ic2)  = hite(ic)
+				cpatch%delta_dbh  (ic2)  = delta_dbh (cpatch%hite(ic2),cpatch%pft(ic2),cpatch%dbh(ic2)) 
 			      else 
+			        cpatch%delta_dbh  (ic2)  = 0. 
 				cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
 			      end if                              
                            else
@@ -791,15 +798,15 @@ subroutine read_ed10_ed20_history_file
 			      ! In case of liana, we read the hite as well 
 			      if (ipft(ic)==17) then
 			        cpatch%hite(ic2)  = hite(ic)
-				!print*,hite(ic),dbh2h(ipft(ic),dbh(ic))
+				cpatch%delta_dbh  (ic2)  = delta_dbh (cpatch%hite(ic2),cpatch%pft(ic2),cpatch%dbh(ic2)) 
 			      else 
+				cpatch%delta_dbh  (ic2)  = 0. 
 				cpatch%hite(ic2)  = dbh2h(ipft(ic),dbh(ic))
 			      end if                              
                               cpatch%bdead(ic2) = dbh2bd(dbh(ic),ipft(ic))
                            end if
                         end select
                         !------------------------------------------------------------------!
-
 
 
                         !------------------------------------------------------------------!
@@ -852,12 +859,12 @@ subroutine read_ed10_ed20_history_file
                         cpatch%basarea(ic2)  = pio4 * cpatch%dbh(ic2) * cpatch%dbh(ic2)
 
                         !----- Growth rates, start with zero. -----------------------------!
-                        cpatch%dagb_dt  (ic2)  = 0.
-                        cpatch%dlnagb_dt(ic2)  = 0.
-                        cpatch%dba_dt   (ic2)  = 0.
-                        cpatch%dlnba_dt (ic2)  = 0.
-                        cpatch%ddbh_dt  (ic2)  = 0.
-                        cpatch%dlndbh_dt(ic2)  = 0.
+                        cpatch%dagb_dt    (ic2)  = 0.
+                        cpatch%dlnagb_dt  (ic2)  = 0.
+                        cpatch%dba_dt     (ic2)  = 0.
+                        cpatch%dlnba_dt   (ic2)  = 0.
+                        cpatch%ddbh_dt    (ic2)  = 0.
+                        cpatch%dlndbh_dt  (ic2)  = 0.
 
                         !------------------------------------------------------------------!
                         !      Initialise other cohort variables.  Some of them won't be   !

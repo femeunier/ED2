@@ -10,6 +10,7 @@ module reproduction_module
 subroutine reproduction(cgrid,month)
    use stable_cohorts
    use stable_cohorts
+   use structural_growth_module , only : shorten_liana_cohorts ! subroutine
    use update_derived_props_module
    use ed_state_vars      , only : edtype                   & ! structure
                                  , polygontype              & ! structure
@@ -90,8 +91,6 @@ subroutine reproduction(cgrid,month)
    !----- Saved variables -----------------------------------------------------------------!
    logical          , save             :: first_time = .true.
    !---------------------------------------------------------------------------------------!
-
-
 
 
    !---------------------------------------------------------------------------------------!
@@ -417,14 +416,15 @@ subroutine reproduction(cgrid,month)
                      !    Compute initial AGB and Basal Area.  Their derivatives will be   !
                      ! zero.                                                               !
                      !---------------------------------------------------------------------!
-                     cpatch%agb      (ico) = ed_biomass(cpatch, ico)
-                     cpatch%basarea  (ico) = pio4 * cpatch%dbh(ico)  * cpatch%dbh(ico)
-                     cpatch%dagb_dt  (ico) = 0.0
-                     cpatch%dlnagb_dt(ico) = 0.0
-                     cpatch%dba_dt   (ico) = 0.0
-                     cpatch%dlnba_dt (ico) = 0.0
-                     cpatch%ddbh_dt  (ico) = 0.0
-                     cpatch%dlndbh_dt(ico) = 0.0
+                     cpatch%agb        (ico) = ed_biomass(cpatch, ico)
+                     cpatch%basarea    (ico) = pio4 * cpatch%dbh(ico)  * cpatch%dbh(ico)
+                     cpatch%dagb_dt    (ico) = 0.0
+                     cpatch%dlnagb_dt  (ico) = 0.0
+                     cpatch%dba_dt     (ico) = 0.0
+                     cpatch%dlnba_dt   (ico) = 0.0
+                     cpatch%ddbh_dt    (ico) = 0.0
+		     cpatch%delta_dbh  (ico) = 0.0
+                     cpatch%dlndbh_dt  (ico) = 0.0
                      !---------------------------------------------------------------------!
 
 
@@ -514,6 +514,7 @@ subroutine reproduction(cgrid,month)
                call update_patch_derived_props(csite,ipa)
                call update_budget(csite,cpoly%lsl(isi),ipa)
                !---------------------------------------------------------------------------!
+               call shorten_liana_cohorts(cpatch)
             end do update_patch_loop
             !------------------------------------------------------------------------------!
 

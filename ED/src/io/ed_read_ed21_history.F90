@@ -591,19 +591,22 @@ subroutine read_ed21_history_file
                               ! should be nonzero.  If the new run has igrass = 1, bdead   !
                               ! is set to zero and that biomass is discarded               !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
-                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
+		              cpatch%delta_dbh (ico) = 0.0
+                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh(ico))
                               cpatch%bdead(ico) = 0.0
 
                            else if (cpatch%bdead(ico) > 0.0 .and. igrass == 0) then
                               ! grasses have bdead in both input and current run (igrass=0)
                               cpatch%bdead(ico) = max(cpatch%bdead(ico),min_bdead(ipft))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%dbh(ico)   = bd2dbh(ipft,cpatch%bdead(ico))
-                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
+                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh(ico))
                            else
                               ! it is either a new grass (igrass=1) in the initial file,   !
                               ! or the value for bdead is missing from the files           !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
-                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
+		              cpatch%delta_dbh (ico) = 0.0
+                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh(ico))
                               cpatch%bdead(ico) = dbh2bd(cpatch%dbh  (ico),ipft)
                            end if
 
@@ -1794,6 +1797,7 @@ subroutine read_ed21_history_unstruct
                               ! should be nonzero.  If the new run has igrass = 1, bdead   !
                               ! is set to zero and the mass is discarded                   !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
                               cpatch%bdead(ico) = 0.0
 
@@ -1801,12 +1805,14 @@ subroutine read_ed21_history_unstruct
                               ! grasses have bdead in both input and current run (igrass=0)
                               cpatch%bdead(ico) = max(cpatch%bdead(ico),min_bdead(ipft))
                               cpatch%dbh(ico)   = bd2dbh(ipft,cpatch%bdead(ico))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
                            else
                               ! it is either a new grass (igrass=1) in the initial file,   !
                               ! or the value for bdead is missing from the files           !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
-                              cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
+		              cpatch%delta_dbh (ico) = 0.0
+                              cpatch%hite(ico) = dbh2h (ipft,cpatch%dbh  (ico))
                               cpatch%bdead(ico) = dbh2bd(cpatch%dbh  (ico),ipft)
                            end if
 
@@ -2971,18 +2977,21 @@ subroutine read_ed21_polyclone
                               ! should be nonzero.  If the new run has igrass = 1, bdead   !
                               ! is set to zero and that biomass is discarded               !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
                               cpatch%bdead(ico) = 0.0
 
                            else if (cpatch%bdead(ico) > 0.0 .and. igrass == 0) then
                               ! grasses have bdead in both input and current run (igrass=0)
                               cpatch%bdead(ico) = max(cpatch%bdead(ico),min_bdead(ipft))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%dbh(ico)   = bd2dbh(ipft,cpatch%bdead(ico))
                               cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
                            else
                               ! it is either a new grass (igrass=1) in the initial file,   !
                               ! or the value for bdead is missing from the files           !
                               cpatch%dbh(ico)   = max(cpatch%dbh(ico),min_dbh(ipft))
+		              cpatch%delta_dbh (ico) = 0.0
                               cpatch%hite(ico)  = dbh2h (ipft,cpatch%dbh  (ico))
                               cpatch%bdead(ico) = dbh2bd(cpatch%dbh  (ico),ipft)
                            end if

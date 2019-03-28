@@ -2273,7 +2273,7 @@ subroutine init_pft_mort_params()
    !---------------------------------------------------------------------------------------!
    !----- Trees taller than treefall_hite_threshold. --------------------------------------!
    treefall_s_gtht(1:16)    = 0.00
-   treefall_s_gtht(17)      = 0.80 !Putz (1983)
+   treefall_s_gtht(17)      = 0.00 !Putz (1983)
    !----- Trees shorter than treefall_hite_threshold. -------------------------------------!
    treefall_s_ltht(1)       = 0.25
    treefall_s_ltht(2:4)     = 0.10
@@ -2749,6 +2749,8 @@ subroutine init_pft_alloc_params()
       dbh_crit   (ipft) = h2dbh(hgt_max(ipft),ipft)
       dbh_adult  (ipft) = 10.0
    end do
+
+   !dbh_crit(17) = 50.
    !---------------------------------------------------------------------------------------!
    ! For lianas dbh_adult is chosen so as to be the intersection between the Putz          !
    ! allometry without intercept and the early successional Bleaf equation for IALLOM = 2  !

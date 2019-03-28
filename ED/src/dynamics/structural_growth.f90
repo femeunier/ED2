@@ -517,6 +517,10 @@ subroutine structural_growth(cgrid, month)
             end do cohortloop
             !------------------------------------------------------------------------------!
 
+            !------------------------------------------------------------------------------!
+	    ! Shorten lianas if they are taller than the tallest tree cohorts
+            call shorten_liana_cohorts(cpatch)
+
             !----- Age the patch if this is not agriculture. ------------------------------!
             if (csite%dist_type(ipa) /= 1) csite%age(ipa) = csite%age(ipa) + 1.0/12.0
             !------------------------------------------------------------------------------!
@@ -772,6 +776,8 @@ subroutine structural_growth_eq_0(cgrid, month)
 
 
 
+
+
                !----- Update annual average carbon balances for mortality. ----------------!
                if (month == 1) then
                   prev_month = 12
@@ -955,7 +961,12 @@ subroutine structural_growth_eq_0(cgrid, month)
                call is_resolvable(csite,ipa,ico)
                !---------------------------------------------------------------------------!
             end do cohortloop
-            !------------------------------------------------------------------------------!
+            
+	    !------------------------------------------------------------------------------!
+	    ! Shorten lianas if they are taller than the tallest tree cohorts
+            call shorten_liana_cohorts(cpatch)
+
+
          end do patchloop
          !---------------------------------------------------------------------------------!
       end do siteloop
@@ -1188,7 +1199,9 @@ end subroutine plant_structural_allocation
 subroutine update_derived_cohort_props(cpatch,ico,lsl,month)
 
    use ed_state_vars , only : patchtype           ! ! structure
-   use pft_coms      , only : is_grass            ! ! function
+   use pft_coms      , only : is_grass            & ! ! function
+			    , hgt_max             & ! intent(in)
+			    , min_dbh             ! ! intent(in)
    use allometry     , only : bd2dbh              & ! function
                             , dbh2h               & ! function
                             , dbh2krdepth         & ! function
@@ -1243,9 +1256,13 @@ subroutine update_derived_cohort_props(cpatch,ico,lsl,month)
        !---- Trees and old grasses get dbh from bdead. ------------------------------------!
        !print*,'here' !
        cpatch%dbh(ico)  = bd2dbh(ipft, cpatch%bdead(ico))
-       if (.not.(cpatch%pft(ico)==17)) then ! If not liana, update
-       	  cpatch%hite(ico) = dbh2h (ipft, cpatch%dbh  (ico))
-       end if
+
+       if (ipft == 17) then
+	  cpatch%hite(ico) = min(hgt_max(ipft),dbh2h (ipft, max(min_dbh(ipft),cpatch%dbh(ico) - cpatch%delta_dbh(ico))))
+       else
+          cpatch%hite(ico) = dbh2h (ipft, cpatch%dbh (ico))
+       end if 
+
    end if
    !---------------------------------------------------------------------------------------!
 
@@ -1734,5 +1751,54 @@ subroutine compute_C_and_N_storage(cgrid,ipy, soil_C, soil_N, veg_C, veg_N)
 end subroutine compute_C_and_N_storage
 !==========================================================================================!
 !==========================================================================================!
+
+
+!==========================================================================================!
+!==========================================================================================!
+!     This subroutine loops over all cohorts and finds the tallest one                     !
+!------------------------------------------------------------------------------------------!
+
+subroutine shorten_liana_cohorts (cpatch)
+
+   use ed_state_vars , only : patchtype      ! ! structure
+   use pft_coms      , only : hgt_max        ! ! intent(in)
+   use allometry     , only : delta_dbh      ! ! Function
+
+   implicit none
+   !----- Arguments -----------------------------------------------------------------------!
+   type(patchtype)       , pointer    :: cpatch
+   !----- Local variables -----------------------------------------------------------------!
+   real                               :: h_edge
+   real                               :: maxh
+   integer                            :: ico
+   logical, dimension(:), allocatable :: is_liana  ! Liana flag
+
+   h_edge = 0.5
+   !---------------------------------------------------------------------------------------!
+
+   if (cpatch%ncohorts > 0) then
+      allocate(is_liana(cpatch%ncohorts))
+
+      is_liana = (cpatch%pft == 17)
+      maxh = h_edge + maxval(cpatch%hite,dim=1,mask=.not.(is_liana))
+
+      hcohortloop2: do ico = 1,cpatch%ncohorts
+         if ((cpatch%pft(ico) == 17) .and. cpatch%hite(ico) > maxh) then
+	   print*,cpatch%hite(ico),maxh    
+	   cpatch%hite(ico) = min(hgt_max(cpatch%pft(ico)),maxh)
+           ! recalculate delta_dbh if hite changes
+	   cpatch%delta_dbh(ico) = delta_dbh (cpatch%hite(ico),cpatch%pft(ico),cpatch%dbh(ico))
+         end if
+      end do hcohortloop2
+
+      deallocate(is_liana)
+
+   end if
+
+   
+   return
+
+end subroutine shorten_liana_cohorts
+
 
 end module structural_growth_module

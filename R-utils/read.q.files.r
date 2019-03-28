@@ -783,6 +783,12 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
            wfluxgwconow = matrix(NA,dim(mymont$MMEAN.PLRESP.CO))
          }
          
+         if ("DELTA.DBH" %in% names(mymont)){
+           delta_DBHconow = mymont$DELTA.DBH
+         } else {
+           delta_DBHconow = matrix(NA,dim(mymont$HITE))
+         }
+         
          plrespconow       = mymont$MMEAN.PLRESP.CO
          assim.lightconow  = mymont$MMEAN.A.LIGHT.CO
          assim.rubpconow   = mymont$MMEAN.A.RUBP.CO
@@ -1475,6 +1481,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          pftconow            = NA
          nplantconow         = NA
          heightconow         = NA
+         delta_DBHconow      = NA
          wood.densconow      = NA
          baconow             = NA
          agbconow            = NA
@@ -1494,6 +1501,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          assim.lightconow    = NA
          leaf.psiconow       = NA
          zRWUconow           = NA
+
          assim.rubpconow     = NA
          assim.co2conow      = NA
          assim.ratioconow    = NA
@@ -2581,6 +2589,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          cohort$pft          [[clab]] = pftconow
          cohort$nplant       [[clab]] = nplantconow * areaconow
          cohort$height       [[clab]] = heightconow
+         cohort$delta_DBH    [[clab]] = delta_DBHconow
          cohort$ba           [[clab]] = nplantconow * baconow * areaconow
          cohort$agb          [[clab]] = agbconow
          cohort$biomass      [[clab]] = biomassconow
@@ -2660,9 +2669,79 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
    #---------------------------------------------------------------------------------------#
 
 
+   # Create patch_var
+   patch_var <- list()
+   
+   maxipa <- 1
+   for (itime in seq(ntimes)){
+     if (max(patch$ipa[[itime]])>maxipa){
+       maxipa <- max(patch$ipa[[itime]])
+     }
+   }
 
+   temp_maxh <- temp_agb <- temp_lai <- 
+     temp_gpp <- temp_bleaf <- temp_nplant <- 
+     temp_dbh <- temp_maxdbh <- temp_bdead <-
+     array(data=NA ,dim=c(maxipa,npft+1,ntimes))
+   
+   for (itime in seq(ntimes)){
+     for (ipa in seq(1,max(cohort$ipa[[itime]]))){
+       
+       hiteconow   <- cohort$height[[itime]]
+       agbconow    <- cohort$agb[[itime]]
+       laiconow    <- cohort$lai[[itime]]
+       gppconow    <- cohort$gpp[[itime]]
+       bleafconow  <- cohort$bleaf[[itime]]
+       nplantconow <- cohort$nplant[[itime]]
+       dbhconow    <- cohort$dbh[[itime]]
+       bdeadconow  <- cohort$bdead[[itime]]
+       
+       
+       pftconow <- cohort$pft[[itime]]
+       paconow <- cohort$ipa[[itime]]
+       pft_uni <- unique(pftconow)
 
-
+       for (ipft in seq(pft_uni)){
+         pos <- (pftconow == pft_uni[ipft] & paconow == ipa)
+         if (any(pos)){
+           temp_maxh[ipa,pft_uni[ipft],itime]   <- max(hiteconow[pos])
+           temp_agb[ipa,pft_uni[ipft],itime]    <- sum(agbconow[pos]*nplantconow[pos])
+           temp_lai[ipa,pft_uni[ipft],itime]    <- sum(laiconow[pos])
+           temp_bleaf[ipa,pft_uni[ipft],itime]  <- sum(bleafconow[pos]*nplantconow[pos])
+           temp_gpp[ipa,pft_uni[ipft],itime]    <- sum(gppconow[pos]*nplantconow[pos])
+           temp_nplant[ipa,pft_uni[ipft],itime] <- sum(nplantconow[pos])
+           temp_dbh[ipa,pft_uni[ipft],itime]    <- weighted.mean( x     = dbhconow    [pos]
+                                                                , w     = nplantconow [pos]
+                                                                , na.rm = TRUE)
+           temp_bdead[ipa,pft_uni[ipft],itime]  <- sum(bdeadconow[pos]*nplantconow[pos])
+           temp_maxdbh[ipa,pft_uni[ipft],itime] <- max(dbhconow[pos])
+         }
+       }
+       if (any(is.finite(temp_maxh[ipa,,itime]))){
+         pos <- (paconow == ipa)
+         temp_maxh[ipa,npft+1,itime]   <- max(temp_maxh[ipa,,itime],na.rm=TRUE)
+         temp_agb[ipa,npft+1,itime]    <- sum(temp_agb[ipa,,itime],na.rm=TRUE)
+         temp_lai[ipa,npft+1,itime]    <- sum(temp_lai[ipa,,itime],na.rm=TRUE)
+         temp_bleaf[ipa,npft+1,itime]  <- sum(temp_bleaf[ipa,,itime],na.rm=TRUE)
+         temp_gpp[ipa,npft+1,itime]    <- sum(temp_gpp[ipa,,itime],na.rm=TRUE)
+         temp_nplant[ipa,npft+1,itime] <- sum(temp_nplant[ipa,,itime],na.rm=TRUE)
+         temp_dbh[ipa,npft+1,itime]    <- weighted.mean( x     = dbhconow    [pos]
+                                                       , w     = nplantconow [pos]
+                                                       , na.rm = TRUE)
+         temp_maxdbh[ipa,npft+1,itime]   <- max(temp_maxdbh[ipa,,itime],na.rm=TRUE)
+         temp_bdead[ipa,npft+1,itime]  <- sum(temp_bdead[ipa,,itime],na.rm=TRUE)
+       }
+     }
+   }
+   patch_var[["maxh"]]   <- temp_maxh
+   patch_var[["agb"]]    <- temp_agb
+   patch_var[["lai"]]    <- temp_lai
+   patch_var[["bleaf"]]  <- temp_bleaf
+   patch_var[["gpp"]]    <- temp_gpp
+   patch_var[["nplant"]] <- temp_nplant
+   patch_var[["dbh"]]    <- temp_dbh
+   patch_var[["maxdbh"]] <- temp_maxdbh
+   patch_var[["bdead"]]  <- temp_bdead 
 
 
    #---------------------------------------------------------------------------------------#
@@ -2676,6 +2755,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
    datum$qmsqu  = qmsqu
    datum$patch  = patch
    datum$cohort = cohort
+   datum$patch_var = patch_var
    #---------------------------------------------------------------------------------------#
 
    return(datum)

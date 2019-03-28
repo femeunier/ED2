@@ -796,6 +796,7 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    cohort$pft            = list()
    cohort$nplant         = list()
    cohort$height         = list()
+   cohort$delta_DBH      = list()
    cohort$ba             = list()
    cohort$agb            = list()
    cohort$biomass        = list()
@@ -1553,6 +1554,7 @@ update.monthly <<- function(new.ntimes,old.datum,montha,yeara,inpref,slz.min){
    new.datum$cohort$pft              = old.datum$cohort$pft
    new.datum$cohort$nplant           = old.datum$cohort$nplant
    new.datum$cohort$height           = old.datum$cohort$height
+   new.datum$cohort$delta_DBH        = old.datum$cohort$delta_DBH   
    new.datum$cohort$ba               = old.datum$cohort$ba
    new.datum$cohort$agb              = old.datum$cohort$agb
    new.datum$cohort$biomass          = old.datum$cohort$biomass

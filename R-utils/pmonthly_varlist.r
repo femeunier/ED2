@@ -3207,6 +3207,125 @@ yc.xyzvar$yvar = list( list ( vname = "rshort"
                      )#end list
 #------------------------------------------------------------------------------------------#
 
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+
+patch_plots       = list()
+n                 = 1
+patch_plots[[n]]  = list( vnam     = "maxh"
+                          , desc     = "Maximum height"
+                          , e.unit   = untab$m
+                          , i.unit   = untab$m
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 1
+n=n+1
+patch_plots[[n]]  = list( vnam     = "agb"
+                          , desc     = "Above Ground Biomass"
+                          , e.unit   = untab$kgcom2
+                          , i.unit   = untab$kgcopl
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 2
+n=n+1
+patch_plots[[n]]  = list( vnam     = "bleaf"
+                          , desc     = "Leaf Biomass"
+                          , e.unit   = untab$kgcom2
+                          , i.unit   = untab$kgcopl
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 2
+n=n+1
+patch_plots[[n]]  = list( vnam     = "lai"
+                          , desc     = "Leaf Area Index"
+                          , e.unit   = untab$m2lom2
+                          , i.unit   = untab$m2lom2
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 4
+n=n+1
+patch_plots[[n]]  = list( vnam     = "gpp"
+                          , desc     = "Gross Primary productivity"
+                          , e.unit   = untab$kgcom2oyr
+                          , i.unit   = untab$kgcom2opl
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 5
+n=n+1
+patch_plots[[n]]  = list( vnam     = "nplant"
+                          , desc     = "Plant density"
+                          , e.unit   = untab$plom2
+                          , i.unit   = untab$plom2
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 6
+n=n+1
+patch_plots[[n]]  = list( vnam     = "dbh"
+                          , desc     = "Mean DBH"
+                          , e.unit   = untab$cm
+                          , i.unit   = untab$cm
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 7
+
+n=n+1
+patch_plots[[n]]  = list( vnam       = "maxdbh"
+                          , desc     = "Max DBH"
+                          , e.unit   = untab$cm
+                          , i.unit   = untab$cm
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 8
+
+n=n+1
+patch_plots[[n]]  = list( vnam       = "bdead"
+                          , desc     = "Dead biomass"
+                          , e.unit   = untab$kgcom2
+                          , i.unit   = untab$kgcom2
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 9
+#------------------------------------------------------------------------------------------#
+
+
 
 
 #------------------------------------------------------------------------------------------#
@@ -3221,6 +3340,7 @@ compmodel   <<- compmodel
 soilplot    <<- soilplot
 plotpatch   <<- plotpatch
 yc.tvar     <<- yc.tvar
+npatch_plots<<- length(patch_plots)
 yc.xyzvar   <<- yc.xyzvar
 ntspftdbh   <<- length(tspftdbh      )
 ntslu       <<- length(tslu          )
@@ -3233,4 +3353,5 @@ nyc.tvar    <<- length(yc.tvar       )
 nyc.xvar    <<- length(yc.xyzvar$xvar)
 nyc.yvar    <<- length(yc.xyzvar$yvar)
 nyc.zvar    <<- length(yc.xyzvar$zvar)
+ltypes      <<- c(rep(1,17),2)
 #------------------------------------------------------------------------------------------#

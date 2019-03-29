@@ -3323,6 +3323,19 @@ patch_plots[[n]]  = list( vnam       = "bdead"
                           , stack    = FALSE
                           , scsout   = FALSE
 )#end list 9
+
+n=n+1
+patch_plots[[n]]  = list( vnam       = "ncohorts"
+                          , desc     = "Number of cohorts"
+                          , e.unit   = untab$unitless
+                          , i.unit   =untab$unitless
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list 10
 #------------------------------------------------------------------------------------------#
 
 

@@ -3838,7 +3838,7 @@ subroutine init_pft_repro_params()
    r_fract(6:11)           = 0.3
    r_fract(12:15)          = 0.3
    r_fract(16)             = 0.3
-   r_fract(17)             = 0.3
+   r_fract(17)             = 0.9
 
    st_fract(1)             = 0.0
    st_fract(2:4)           = 0.0

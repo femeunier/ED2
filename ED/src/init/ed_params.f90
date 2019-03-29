@@ -3478,7 +3478,7 @@ subroutine init_pft_hydro_params()
                             * wood_water_sat(ipft) / (4. * abs(wood_psi_tlp(ipft)))
 
        ! Wood P50 [m]
-       wood_psi50(ipft) = (-1.09-(3.57 * rho(ipft)) ** 1.73) * MPa2m 
+       wood_psi50(ipft) = (-1.09-(3.57 * rho(ipft) ** 1.73)) * MPa2m 
        
        Amax_25 = Vm0(ipft) * 2.4 / 4.1 ! umol/m2/s
        ! This is only an estimate. 2.4 is Q10, converting to Vcmax_25, 4.1

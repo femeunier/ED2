@@ -2682,6 +2682,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
    temp_maxh <- temp_agb <- temp_lai <- 
      temp_gpp <- temp_bleaf <- temp_nplant <- 
      temp_dbh <- temp_maxdbh <- temp_bdead <-
+     temp_ncohorts <-
      array(data=NA ,dim=c(maxipa,npft+1,ntimes))
    
    for (itime in seq(ntimes)){
@@ -2704,17 +2705,18 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
        for (ipft in seq(pft_uni)){
          pos <- (pftconow == pft_uni[ipft] & paconow == ipa)
          if (any(pos)){
-           temp_maxh[ipa,pft_uni[ipft],itime]   <- max(hiteconow[pos])
-           temp_agb[ipa,pft_uni[ipft],itime]    <- sum(agbconow[pos]*nplantconow[pos])
-           temp_lai[ipa,pft_uni[ipft],itime]    <- sum(laiconow[pos])
-           temp_bleaf[ipa,pft_uni[ipft],itime]  <- sum(bleafconow[pos]*nplantconow[pos])
-           temp_gpp[ipa,pft_uni[ipft],itime]    <- sum(gppconow[pos]*nplantconow[pos])
-           temp_nplant[ipa,pft_uni[ipft],itime] <- sum(nplantconow[pos])
-           temp_dbh[ipa,pft_uni[ipft],itime]    <- weighted.mean( x     = dbhconow    [pos]
+           temp_maxh[ipa,pft_uni[ipft],itime]     <- max(hiteconow[pos])
+           temp_agb[ipa,pft_uni[ipft],itime]      <- sum(agbconow[pos]*nplantconow[pos])
+           temp_lai[ipa,pft_uni[ipft],itime]      <- sum(laiconow[pos])
+           temp_bleaf[ipa,pft_uni[ipft],itime]    <- sum(bleafconow[pos]*nplantconow[pos])
+           temp_gpp[ipa,pft_uni[ipft],itime]      <- sum(gppconow[pos]*nplantconow[pos])
+           temp_nplant[ipa,pft_uni[ipft],itime]   <- sum(nplantconow[pos])
+           temp_dbh[ipa,pft_uni[ipft],itime]      <- weighted.mean( x     = dbhconow    [pos]
                                                                 , w     = nplantconow [pos]
                                                                 , na.rm = TRUE)
-           temp_bdead[ipa,pft_uni[ipft],itime]  <- sum(bdeadconow[pos]*nplantconow[pos])
-           temp_maxdbh[ipa,pft_uni[ipft],itime] <- max(dbhconow[pos])
+           temp_bdead[ipa,pft_uni[ipft],itime]    <- sum(bdeadconow[pos]*nplantconow[pos])
+           temp_maxdbh[ipa,pft_uni[ipft],itime]   <- max(dbhconow[pos])
+           temp_ncohorts[ipa,pft_uni[ipft],itime] <- length(dbhconow[pos])
          }
        }
        if (any(is.finite(temp_maxh[ipa,,itime]))){
@@ -2730,6 +2732,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
                                                        , na.rm = TRUE)
          temp_maxdbh[ipa,npft+1,itime]   <- max(temp_maxdbh[ipa,,itime],na.rm=TRUE)
          temp_bdead[ipa,npft+1,itime]  <- sum(temp_bdead[ipa,,itime],na.rm=TRUE)
+         temp_ncohorts[ipa,npft+1,itime]  <- sum(temp_ncohorts[ipa,,itime],na.rm=TRUE)
        }
      }
    }
@@ -2742,6 +2745,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
    patch_var[["dbh"]]    <- temp_dbh
    patch_var[["maxdbh"]] <- temp_maxdbh
    patch_var[["bdead"]]  <- temp_bdead 
+   patch_var[["ncohorts"]]  <- temp_ncohorts 
 
 
    #---------------------------------------------------------------------------------------#

@@ -284,7 +284,7 @@ subroutine init_met_drivers
                   allocate(cgrid%metinput(ipy)%atm_ustar(mem_size))
                   cgrid%metinput(ipy)%atm_ustar = huge(1.)
 
-               case ('lat','lon') !---- Latitude and longitude: skip them. ----------------!
+               case ('lat','lon','land') !---- Latitude and longitude: skip them. ----------------!
                case default
                   call fatal_error('Invalid met variable'//trim(met_vars(iformat,iv))//'!' &
                                   ,'init_met_drivers','ed_met_driver.f90')

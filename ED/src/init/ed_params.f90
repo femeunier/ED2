@@ -371,7 +371,8 @@ end subroutine init_ed_misc_coms
 !------------------------------------------------------------------------------------------!
 subroutine init_met_params()
    use ed_misc_coms   , only : dtlsm           ! ! intent(in)
-   use met_driver_coms, only : rshort_min      & ! intent(out)
+   use met_driver_coms, only : met_land_min    & ! intent(out)
+      , rshort_min      & ! intent(out)
       , rshort_max      & ! intent(out)
       , rlong_min       & ! intent(out)
       , rlong_max       & ! intent(out)
@@ -398,6 +399,8 @@ subroutine init_met_params()
       , nbdsf_file      & ! intent(out)
       , nddsf_file      ! ! intent(out)
 
+   !----- Minimum land fraction for a met driver point to be considered land. -------------!
+   met_land_min = 0.5
 
    !----- Minimum and maximum acceptable shortwave radiation [W/m�]. ----------------------!
    rshort_min  = 0.

@@ -21,7 +21,9 @@ subroutine read_met_driver_head()
                              , met_frq          & ! intent(out)
                              , met_interp       & ! intent(out)
                              , ed_met_driver_db & ! intent(out)
-                             , no_ll            ! ! intent(out)
+                             , no_ll            & ! intent(out)
+                             , met_land_mask    & ! intent(out)
+                             , met_ll_header    ! ! intent(out)
    implicit none  
    !----- Local variables -----------------------------------------------------------------!
    logical :: l1
@@ -62,9 +64,13 @@ subroutine read_met_driver_head()
    allocate(met_frq   (nformats, max_met_vars))
    allocate(met_interp(nformats, max_met_vars))
    allocate(no_ll     (nformats)              )
+   allocate(met_land_mask(nformats)           )
+   allocate(met_ll_header(nformats)           )
 
    !----- Just to initialize, if lon/lat are both found, it will become .false. -----------!
-   no_ll(:) = .true.    
+   no_ll(:) = .true.   
+   met_ll_header(:) = .true.  
+ 
    !----- Read the information for each format. -------------------------------------------!
    do iformat = 1,nformats
       read(unit=12,fmt='(a)')  met_names(iformat)
@@ -83,14 +89,26 @@ subroutine read_met_driver_head()
       yes_lat = any(met_vars(iformat,1:met_nv(iformat)) == 'lat')
       
 
+         if (yes_lat .and. yes_lon) then
+            met_ll_header (iformat) = .false.
+            no_ll (iformat) = .false.
+         elseif (yes_lat .neqv. yes_lon) then
+            write (unit=*,fmt='(a,1x,l1)') ' Longitude in HDF5 : ',yes_lon
+            write (unit=*,fmt='(a,1x,l1)') ' Longitude in HDF5 : ',yes_lat
+            call fatal_error('Found only one coordinate. Either none or both should be'//  &
+                             'present','read_met_driver_head','ed_met_driver.f90')
+         end if
+
       !----- Check to see if you have both, none or one of each. --------------------------!
-      if (yes_lat .and. yes_lon) then
-         no_ll (iformat) = .false.
-      elseif (yes_lat .neqv. yes_lon) then
-         call fatal_error('You are missing a lat or a lon variable in the met nl'          &
-                         ,'read_met_driver_head','ed_met_driver.f90')
-      end if
+      !if (yes_lat .and. yes_lon) then
+      !   no_ll (iformat) = .false.
+      !elseif (yes_lat .neqv. yes_lon) then
+      !   call fatal_error('You are missing a lat or a lon variable in the met nl'          &
+      !                   ,'read_met_driver_head','ed_met_driver.f90')
+      !end if
    end do
+
+   met_land_mask(iformat) = any(met_vars(iformat,1:met_nv(iformat)) == 'land')
 
    close (unit=12,status='keep')
 
@@ -284,7 +302,7 @@ subroutine init_met_drivers
                   allocate(cgrid%metinput(ipy)%atm_ustar(mem_size))
                   cgrid%metinput(ipy)%atm_ustar = huge(1.)
 
-               case ('lat','lon','land') !---- Latitude and longitude: skip them. ----------------!
+               case ('lat','lon','land') !---- Latitude and longitude and land/sea mask: skip them. ----------------!
                case default
                   call fatal_error('Invalid met variable'//trim(met_vars(iformat,iv))//'!' &
                                   ,'init_met_drivers','ed_met_driver.f90')
@@ -550,8 +568,10 @@ subroutine read_met_drivers_init
          !     The following subroutine determines grid indices of each polygon's match to !
          ! the met data.                                                                   !
          !---------------------------------------------------------------------------------!
-         call getll(cgrid,iformat)
-         
+         !call getll(cgrid,iformat)
+	 call get_lonlat_land(cgrid,iformat)         
+
+
          !----- Loop over variables. and read the data. -----------------------------------!
          do iv = 1, met_nv(iformat)
             offset = 0
@@ -707,7 +727,8 @@ subroutine read_met_drivers
          !     The following subroutine determines grid indices of each polygon's match to !
          ! the met data.                                                                   !
          !---------------------------------------------------------------------------------!
-         call getll(cgrid,iformat)
+         !call getll(cgrid,iformat)
+         call get_lonlat_land(cgrid,iformat)
          
          !----- Loop over variables. and read the data. -----------------------------------!
          do iv = 1, met_nv(iformat)
@@ -2984,143 +3005,380 @@ end subroutine transfer_ol_month
 
 !==========================================================================================!
 !==========================================================================================!
-subroutine match_poly_grid(cgrid,nlon,nlat,lon,lat)
-
-   use ed_state_vars , only : edtype
-
-   implicit none
-   !----- Arguments -----------------------------------------------------------------------!
-   type(edtype)              , target        :: cgrid
-   real, dimension(nlon,nlat), intent(inout) :: lon,lat
-   integer                   , intent(in)    :: nlon,nlat
-   !----- Local variables -----------------------------------------------------------------!
-   integer                                   :: ilat,ilon
-   integer                                   :: ipy
-   real                                      :: min_dist
-   real                                      :: this_dist
-   !----- External function ---------------------------------------------------------------!
-   real                       , external     :: dist_gc
+!=======================================================================================!
+   !=======================================================================================!
+   !     This sub-routine finds the met driver grid point that is the closest to the       !
+   ! polygon of interest and is valid (i.e., met driver grid point is on land).            !
    !---------------------------------------------------------------------------------------!
-
-
-   polyloop: do ipy = 1,cgrid%npolygons
-      min_dist = huge (1.)
-
-      lonloop: do ilon = 1,nlon
-         latloop: do ilat = 1,nlat
-
-            if (lon(ilon,ilat) > 180.0) lon(ilon,ilat) = lon(ilon,ilat) - 360.0
-
-            this_dist = dist_gc(cgrid%lon(ipy), lon(ilon,ilat)                             &
-                               ,cgrid%lat(ipy), lat(ilon,ilat) )
-
-            if(this_dist < min_dist) then
-               cgrid%ilon(ipy) = ilon
-               cgrid%ilat(ipy) = ilat
-               min_dist        = this_dist
-            end if
-
-         end do latloop
-      end do lonloop
-
-   end do polyloop
-
-   return
-end subroutine match_poly_grid
-!==========================================================================================!
-!==========================================================================================!
-
-
-
-
-
-
-!==========================================================================================!
-!==========================================================================================!
-subroutine getll(cgrid,iformat)
-
-   use met_driver_coms, only: met_nlon, &
-        met_nlat, &
-        lat2d,    &
-        lon2d,    &
-        no_ll
-   
-   use hdf5_utils,only : shdf5_info_f,shdf5_irec_f
-   use ed_state_vars,only:edtype
-
-   implicit none
-   
-   integer, intent(in) :: iformat   
-   integer :: ndims
-   integer :: d
-   integer, dimension(3) :: idims
-   type(edtype),target :: cgrid
-
-   ! First check to see if there is lat/lon data in this dataset
-   ! if the data exists, load it
-   
-   if(.not.no_ll(iformat)) then
-         
-      !  Get the dimensioning information on latitude
-      call shdf5_info_f('lat',ndims,idims)
+   subroutine match_poly_grid(cgrid,nlon,nlat,lon,lat,land)
+      use ed_state_vars  , only : edtype        ! ! structure
+      use met_driver_coms, only : met_land_min  ! ! intent(in)
       
-      if(ndims /= 2) then
-         write(unit=*,fmt='(a)') 'Number of dimensions of latitude is wrong...'
-         write(unit=*,fmt='(a,1x,i5)') 'NDIMS=',ndims
-         do d=1,ndims
-            write(unit=*,fmt='(a,1x,i5)') '---> ',d,': DIM=',idims(d)
+
+      implicit none
+      !----- Arguments --------------------------------------------------------------------!
+      type(edtype)              , target        :: cgrid
+      integer                   , intent(in)    :: nlon
+      integer                   , intent(in)    :: nlat
+      real, dimension(nlon,nlat), intent(inout) :: lon
+      real, dimension(nlon,nlat), intent(inout) :: lat
+      real, dimension(nlon,nlat), intent(inout) :: land
+      !----- Local variables --------------------------------------------------------------!
+      integer                                   :: ilon
+      integer                                   :: ilat
+      integer                                   :: ipy
+      logical                                   :: any_land
+      real                                      :: min_dist
+      real                                      :: this_dist
+      !----- External function ------------------------------------------------------------!
+      real                       , external     :: dist_gc
+      !------------------------------------------------------------------------------------!
+
+
+      !------------------------------------------------------------------------------------!
+      !    Check that at least one point in the met driver is land.                        !
+      !------------------------------------------------------------------------------------!
+      any_land = any(land(:,:) >= met_land_min)
+      if (.not. any_land) then
+         call fatal_error("Met driver problem -- All grid points are over water."          &
+                         ,"match_poly_grid","ed_met_driver.f90")
+      end if
+      !------------------------------------------------------------------------------------!
+
+
+
+      !------------------------------------------------------------------------------------!
+      !     Go through all polygons and grid points, and find the closest site that is not !
+      ! over land.                                                                         !
+      !------------------------------------------------------------------------------------!
+      polyloop: do ipy = 1,cgrid%npolygons
+         min_dist = huge (1.)
+
+         lonloop: do ilon = 1,nlon
+            latloop: do ilat = 1,nlat
+
+               !------ Skip point in case it has not enough land in it. -------------------!
+               if (land(ilon,ilat) < met_land_min) cycle latloop
+               !---------------------------------------------------------------------------!
+
+               !------ Make sure longitude goes from -180 to 180. -------------------------!
+               if (lon(ilon,ilat) > 180.0) lon(ilon,ilat) = lon(ilon,ilat) - 360.0
+               !---------------------------------------------------------------------------!
+
+               !---------------------------------------------------------------------------!
+               !    Find distance from met driver grid cell and polygon of interest.  In   !
+               ! case this is the closest point so far, select it as the candidate.        !
+               !---------------------------------------------------------------------------!
+               this_dist = dist_gc(cgrid%lon(ipy), lon(ilon,ilat)                          &
+                                  ,cgrid%lat(ipy), lat(ilon,ilat) )
+               if (this_dist < min_dist) then
+                  cgrid%ilon(ipy) = ilon
+                  cgrid%ilat(ipy) = ilat
+                  min_dist        = this_dist
+               end if
+               !---------------------------------------------------------------------------!
+            end do latloop
+            !------------------------------------------------------------------------------!
+         end do lonloop
+         !---------------------------------------------------------------------------------!
+      end do polyloop
+      !------------------------------------------------------------------------------------!
+
+      return
+   end subroutine match_poly_grid
+   !=======================================================================================!
+   !=======================================================================================!
+
+
+!==========================================================================================!
+!==========================================================================================!
+
+
+
+
+
+
+!==========================================================================================!
+!==========================================================================================!
+!subroutine getll(cgrid,iformat)
+!
+!   use met_driver_coms, only: met_nlon, &
+!        met_nlat, &
+!        lat2d,    &
+!        lon2d,    &
+!        no_ll
+!   
+!   use hdf5_utils,only : shdf5_info_f,shdf5_irec_f
+!   use ed_state_vars,only:edtype
+!
+!   implicit none
+!   
+!   integer, intent(in) :: iformat   
+!   integer :: ndims
+!   integer :: d
+!   integer, dimension(3) :: idims
+!   type(edtype),target :: cgrid
+!
+!   ! First check to see if there is lat/lon data in this dataset
+!   ! if the data exists, load it
+!   
+!   if(.not.no_ll(iformat)) then
+!         
+!      !  Get the dimensioning information on latitude
+!      call shdf5_info_f('lat',ndims,idims)
+!      
+!      if(ndims /= 2) then
+!         write(unit=*,fmt='(a)') 'Number of dimensions of latitude is wrong...'
+!         write(unit=*,fmt='(a,1x,i5)') 'NDIMS=',ndims
+!         do d=1,ndims
+!            write(unit=*,fmt='(a,1x,i5)') '---> ',d,': DIM=',idims(d)
+!         end do
+!         call fatal_error ('Not set up to have time varying latitude...' &
+!                          ,'getll','ed_met_driver.f90')
+!      endif
+!      
+!      !  Transfer the dimensions into the met_nlon array
+!      met_nlon(iformat) = idims(1)
+!      met_nlat(iformat) = idims(2)
+!      
+!      !  Allocate the latitude array
+!      allocate(lat2d(idims(1),idims(2)))
+!      
+!      !  Read in the latitude array
+!      call shdf5_irec_f(ndims, idims, 'lat',  &
+!           rvara = lat2d )
+!            
+!      
+!      !  Get the dimensioning information on longitude
+!      call shdf5_info_f('lon',ndims,idims)
+!      
+!      if(ndims /= 2) then
+!         write(unit=*,fmt='(a)') 'Number of dimensions of longitude is wrong...'
+!         write(unit=*,fmt='(a,1x,i5)') 'NDIMS=',ndims
+!         do d=1,ndims
+!            write(unit=*,fmt='(a,1x,i5)') '---> ',d,': DIM=',idims(d)
+!         end do
+!         call fatal_error ('Not set up to have time varying longitude...' &
+!                          ,'getll','ed_met_driver.f90')
+!      endif
+!      
+!      !  Allocate the latitude array
+!      allocate(lon2d(idims(1),idims(2)))
+!      ndims = 2
+!      
+!      !  Read in the latitude array
+!      call shdf5_irec_f(ndims, idims, 'lon',  &
+!           rvara = lon2d )
+!      
+!      !  Determine the indices of the grid that each polygon sees
+!      !  returns poly%ilon and poly%ilat
+!      
+!      call match_poly_grid(cgrid,met_nlon(iformat),met_nlat(iformat),lon2d,lat2d)
+!      
+!      ! Deallocate the lat-lon arrays
+!      deallocate(lat2d,lon2d)
+!
+!   endif
+!   
+!   return
+!   
+!end subroutine getll
+!==========================================================================================!
+!==========================================================================================!
+
+
+!=======================================================================================!
+   !=======================================================================================!
+   !     This sub-routine finds the indices of the input meteorological forcing that are   !
+   ! the closest to each polygon, skipping those met driver points that are not over land  !
+   ! in case a land/sea  mask is provided.                                                 !
+   !---------------------------------------------------------------------------------------!
+   subroutine get_lonlat_land(cgrid,iformat)
+      use ed_state_vars  , only : edtype        ! ! structure
+      use met_driver_coms, only : met_ll_header & ! intent(in)
+                                , met_land_mask & ! intent(in)
+                                , met_xmin      & ! intent(in)
+                                , met_ymin      & ! intent(in)
+                                , met_dx        & ! intent(in)
+                                , met_dy        & ! intent(in)
+                                , met_nlon      & ! intent(inout)
+                                , met_nlat      & ! intent(inout)
+                                , lon2d         & ! intent(out)
+                                , lat2d         & ! intent(out)
+                                , land2d        ! ! intent(out)
+      use hdf5_utils     , only : shdf5_info_f  & ! sub-routine
+                                , shdf5_irec_f  ! ! sub-routine
+      implicit none
+      !----- Arguments. -------------------------------------------------------------------!
+      type(edtype)         , target         :: cgrid
+      integer              , intent(in)     :: iformat
+      !----- Local variables. -------------------------------------------------------------!
+      integer                               :: ndims
+      integer                               :: d
+      integer                               :: ilon
+      integer                               :: ilat
+      integer              , dimension(3)   :: idims
+      !------------------------------------------------------------------------------------!
+
+
+
+      !------------------------------------------------------------------------------------!
+      !     Check whether this data set contains longitude and latitude.  In case it does, !
+      ! load it, otherwise assign the matrix.                                              !
+      !------------------------------------------------------------------------------------!
+      if (met_ll_header(iformat)) then
+
+
+         !----- Allocate 2d arrays. -------------------------------------------------------!
+         allocate (lon2d(met_nlon(iformat),met_nlat(iformat)))
+         allocate (lat2d(met_nlon(iformat),met_nlat(iformat)))
+         !---------------------------------------------------------------------------------!
+
+
+
+
+         !---------------------------------------------------------------------------------!
+         !    Coordinates are not provided in the HDF5 file.  Make the 2D matrices, keep-  !
+         ! ing in mind that latitude is flipped.                                           !
+         !---------------------------------------------------------------------------------!
+         do ilat=1,met_nlat(iformat)
+            do ilon=1,met_nlon(iformat)
+               lon2d(ilon,ilat) = met_xmin(iformat) + real(ilon -  1) * met_dx(iformat)
+               lat2d(ilon,ilat) = met_ymin(iformat)                                        &
+                                + real(met_nlat(iformat) - ilat)      * met_dy(iformat)
+            end do
          end do
-         call fatal_error ('Not set up to have time varying latitude...' &
-                          ,'getll','ed_met_driver.f90')
-      endif
-      
-      !  Transfer the dimensions into the met_nlon array
-      met_nlon(iformat) = idims(1)
-      met_nlat(iformat) = idims(2)
-      
-      !  Allocate the latitude array
-      allocate(lat2d(idims(1),idims(2)))
-      
-      !  Read in the latitude array
-      call shdf5_irec_f(ndims, idims, 'lat',  &
-           rvara = lat2d )
-            
-      
-      !  Get the dimensioning information on longitude
-      call shdf5_info_f('lon',ndims,idims)
-      
-      if(ndims /= 2) then
-         write(unit=*,fmt='(a)') 'Number of dimensions of longitude is wrong...'
-         write(unit=*,fmt='(a,1x,i5)') 'NDIMS=',ndims
-         do d=1,ndims
-            write(unit=*,fmt='(a,1x,i5)') '---> ',d,': DIM=',idims(d)
-         end do
-         call fatal_error ('Not set up to have time varying longitude...' &
-                          ,'getll','ed_met_driver.f90')
-      endif
-      
-      !  Allocate the latitude array
-      allocate(lon2d(idims(1),idims(2)))
-      ndims = 2
-      
-      !  Read in the latitude array
-      call shdf5_irec_f(ndims, idims, 'lon',  &
-           rvara = lon2d )
-      
-      !  Determine the indices of the grid that each polygon sees
-      !  returns poly%ilon and poly%ilat
-      
-      call match_poly_grid(cgrid,met_nlon(iformat),met_nlat(iformat),lon2d,lat2d)
-      
-      ! Deallocate the lat-lon arrays
-      deallocate(lat2d,lon2d)
+         !---------------------------------------------------------------------------------!
+      else
+         !----- Get the dimension information from longitude and check it. ----------------!
+         call shdf5_info_f('lon',ndims,idims)
+         if(ndims /= 2) then
+            write(unit=*,fmt="(a)") "Incorrect # of dimensions of variable ""lon""."
+            write(unit=*,fmt="(a,1x,i5)") "NDIMS=",ndims
+            do d=1,ndims
+               write(unit=*,fmt="(a,1x,i5)") "---> ",d,": DIM=",idims(d)
+            end do
+            call fatal_error ("ED-2 cannot handle time-varying longitude."                 &
+                             ,"get_lonlat_land","ed_met_driver.f90")
+         end if
+         !---------------------------------------------------------------------------------!
 
-   endif
-   
-   return
-   
-end subroutine getll
-!==========================================================================================!
-!==========================================================================================!
+
+
+         !----- Allocate the longitude array, then read it. -------------------------------!
+         allocate(lon2d(idims(1),idims(2)))
+         call shdf5_irec_f(ndims, idims, 'lon',rvara = lon2d )
+         !---------------------------------------------------------------------------------!
+
+         !----- Save dimensions. ----------------------------------------------------------!
+         met_nlon(iformat) = idims(1)
+         met_nlat(iformat) = idims(2)
+         !---------------------------------------------------------------------------------!
+
+
+
+         !----- Get the dimension information from latitude and check it. -----------------!
+         call shdf5_info_f('lat',ndims,idims)
+         if(ndims /= 2) then
+            write(unit=*,fmt="(a)") "Incorrect # of dimensions of variable ""lat""."
+            write(unit=*,fmt="(a,1x,i5)") "NDIMS=",ndims
+            do d=1,ndims
+               write(unit=*,fmt='(a,1x,i5)') "---> ",d,": DIM=",idims(d)
+            end do
+            call fatal_error ("ED-2 cannot handle time-varying latitude."                  &
+                             ,"get_lonlat_land","ed_met_driver.f90")
+         end if
+         !---------------------------------------------------------------------------------!
+
+
+
+         !----- Stop in case longitude and latitude dimensions don't match. ---------------!
+         if (met_nlon(iformat) /= idims(1) .or. met_nlat(iformat) /= idims(2)) then
+            write(unit=*,fmt='(a,2(1x,i5))') " Dimensions of variable ""lon"": "           &
+                                            ,met_nlon(iformat),met_nlat(iformat)
+            write(unit=*,fmt='(a,2(1x,i5))') " Dimensions of variable ""lat"" : "          &
+                                            ,idims(1),idims(2)
+            call fatal_error ("Longitude and latitude dimensions should match."            &
+                             ,"get_lonlat_land","ed_met_driver.f90")
+         end if
+         !---------------------------------------------------------------------------------!
+
+
+
+         !----- Allocate the longitude array, then read it. -------------------------------!
+         allocate(lat2d(idims(1),idims(2)))
+         call shdf5_irec_f(ndims, idims, 'lat',rvara = lat2d )
+         !---------------------------------------------------------------------------------!
+      end if
+      !------------------------------------------------------------------------------------!
+
+
+
+      !------------------------------------------------------------------------------------!
+      !     Check whether this data set contains land/sea mask.  In case it does, load it, !
+      ! otherwise assume that everything is land.                                          !
+      !------------------------------------------------------------------------------------!
+      if (met_land_mask(iformat)) then
+         !----- Get the dimension information from land/sea mask and check it. ------------!
+         call shdf5_info_f('land',ndims,idims)
+         if(ndims /= 2) then
+            write(unit=*,fmt="(a)") "Incorrect # of dimensions of variable ""land""."
+            write(unit=*,fmt="(a,1x,i5)") "NDIMS=",ndims
+            do d=1,ndims
+               write(unit=*,fmt="(a,1x,i5)") "---> ",d,": DIM=",idims(d)
+            end do
+            call fatal_error ("ED-2 cannot handle time-varying land/sea mask."             &
+                             ,"get_lonlat_land","ed_met_driver.f90")
+         end if
+         !---------------------------------------------------------------------------------!
+
+
+
+         !----- Stop in case longitude and latitude dimensions don't match. ---------------!
+         if (met_nlon(iformat) /= idims(1) .or. met_nlat(iformat) /= idims(2)) then
+            write(unit=*,fmt='(a,2(1x,i5))') " Dimensions of variables ""lon/lat"": "      &
+                                            ,met_nlon(iformat),met_nlat(iformat)
+            write(unit=*,fmt='(a,2(1x,i5))') " Dimensions of variable ""land"" : "         &
+                                            ,idims(1),idims(2)
+            call fatal_error ("Land mask and lon/lat dimensions should match."             &
+                             ,"get_lonlat_land","ed_met_driver.f90")
+         end if
+         !---------------------------------------------------------------------------------!
+
+
+
+         !----- Allocate the longitude array, then read it. -------------------------------!
+         allocate(land2d(idims(1),idims(2)))
+         call shdf5_irec_f(ndims, idims, 'land',rvara = land2d )
+         !---------------------------------------------------------------------------------!
+
+      else
+
+         !----- Allocate 2d arrays. -------------------------------------------------------!
+         allocate (land2d(met_nlon(iformat),met_nlat(iformat)))
+         land2d(:,:) = 1.0
+         !---------------------------------------------------------------------------------!
+      end if
+      !------------------------------------------------------------------------------------!
+
+
+
+
+      !------------------------------------------------------------------------------------!
+      !     Look for the met driver point that is on land and is the closest to the        !
+      ! polygon of interest.                                                               !
+      !------------------------------------------------------------------------------------!
+      call match_poly_grid(cgrid,met_nlon(iformat),met_nlat(iformat),lon2d,lat2d,land2d)
+      !------------------------------------------------------------------------------------!
+
+      !------ Deallocate matrices. --------------------------------------------------------!
+      deallocate(lat2d,lon2d,land2d)
+      !------------------------------------------------------------------------------------!
+
+      return
+   end subroutine get_lonlat_land
+   !=======================================================================================!
+   !=======================================================================================!
+
 
 end module ed_met_driver

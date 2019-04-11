@@ -106,9 +106,9 @@ subroutine read_met_driver_head()
       !   call fatal_error('You are missing a lat or a lon variable in the met nl'          &
       !                   ,'read_met_driver_head','ed_met_driver.f90')
       !end if
-   end do
 
-   met_land_mask(iformat) = any(met_vars(iformat,1:met_nv(iformat)) == 'land')
+      met_land_mask(iformat) = any(met_vars(iformat,1:met_nv(iformat)) == 'land')
+   end do
 
    close (unit=12,status='keep')
 

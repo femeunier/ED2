@@ -410,10 +410,10 @@ subroutine init_met_params()
    rlong_max   = 600.
    !----- Minimum and maximum acceptable air temperature    [   K]. -----------------------!
    atm_tmp_min = 184.     ! Lowest temperature ever measured, in Vostok Basin, Antarctica
-   atm_tmp_max = 331.     ! Highest temperature ever measured, in El Azizia, Libya
+   atm_tmp_max = 350.     ! About 78degC, or > 20degC higher than Death Valley's record
    !----- Minimum and maximum acceptable air specific humidity [kg_H2O/kg_air]. -----------!
    atm_shv_min = 1.e-6    ! That corresponds to a relative humidity of 0.1% at 1000hPa
-   atm_shv_max = 3.2e-2   ! That corresponds to a dew point of 32�C at 1000hPa.
+   atm_shv_max = 8.0e-2   ! That corresponds to a dew point of 41�C at 1000hPa.
    !----- Minimum and maximum acceptable CO2 mixing ratio [�mol/mol]. ---------------------!
    atm_co2_min = 100.     !
    atm_co2_max = 1100.    !

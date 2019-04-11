@@ -384,7 +384,6 @@ subroutine get_work(ifm,nxp,nyp)
       do i=1,nxp
          ipy = ipy + 1
          work_e(ifm)%land(i,j) = ipcent_land(1,ipy) > min_site_area
-
          if (work_e(ifm)%land(i,j)) then
             work_e(ifm)%landfrac(i,j) = ipcent_land(1,ipy)
 

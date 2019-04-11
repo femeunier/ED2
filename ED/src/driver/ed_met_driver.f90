@@ -3046,7 +3046,6 @@ end subroutine transfer_ol_month
       !------------------------------------------------------------------------------------!
 
 
-
       !------------------------------------------------------------------------------------!
       !     Go through all polygons and grid points, and find the closest site that is not !
       ! over land.                                                                         !

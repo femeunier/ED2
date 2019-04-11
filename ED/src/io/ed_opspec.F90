@@ -1293,9 +1293,9 @@ subroutine ed_opspec_misc
         ,'Yours is set to ',maxsite,'...'
    end if
 
-   if (min_site_area < 0.0001 .or. min_site_area > 0.10) then
+   if (min_site_area < 0.00001 .or. min_site_area > 0.10) then
       write (reason,fmt='(a,2x,a,1x,es12.5,a)')                                            &
-         'Invalid MIN_SITE_AREA, it must be between 0.0001 and 0.10.'                      &
+         'Invalid MIN_SITE_AREA, it must be between 0.00001 and 0.10.'                      &
         ,'Yours is set to ',min_site_area,'...'
    end if
 

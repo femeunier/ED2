@@ -7,7 +7,7 @@
 #   - ntimes  -- Total number of times (including previously loaded times).                #
 #   - tresume -- The first time to read (in case data have been partially loaded.          #
 #------------------------------------------------------------------------------------------#
-read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
+read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5,remote=FALSE){
 
 
    #----- Copy some dimensions to scalars. ------------------------------------------------#
@@ -73,6 +73,14 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
 
 
       #----- Read data and close connection immediately after. ----------------------------#
+      if (remote){
+        tmp_dir <- '/home/femeunier/Documents/tmp/ed_remote/'
+        temp_file <- file.path(tmp_dir,basename(datum$input[m]))
+        args <- c('-avz',datum$input[m],'/home/femeunier/Documents/tmp/ed_remote/')
+        system2('rsync',shQuote(args),stdout = TRUE, stderr = TRUE)
+        datum$input[m] <- temp_file   
+      }
+
       h5file       = datum$input[m]
       h5file.bz2   = paste(datum$input[m],"bz2",sep=".")
       h5file.gz    = paste(datum$input[m],"gz" ,sep=".")
@@ -99,6 +107,9 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       }#end if
       #------------------------------------------------------------------------------------#
 
+      if (remote){
+        dummy = file.remove(datum$input[m])
+      }
 
       #------------------------------------------------------------------------------------#
       #      Create some additional radiation variables.                                   #
@@ -1040,6 +1051,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
 
          #----- Define the DBH classes. ---------------------------------------------------#
          dbhconow        = mymont$DBH
+         ddbhdtconow     = mymont$DDBH.DT
          dbhcut          = cut(dbhconow,breaks=breakdbh)
          dbhlevs         = levels(dbhcut)
          dbhfac          = match(dbhcut,dbhlevs)
@@ -1481,6 +1493,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          pftconow            = NA
          nplantconow         = NA
          heightconow         = NA
+         ddbhdtconow         = NA
          delta_DBHconow      = NA
          wood.densconow      = NA
          baconow             = NA
@@ -1934,7 +1947,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
                                                          , na.rm = TRUE
                                                          )#end weighted.mean
                szpft$zRWU         [m,d,p] = weighted.mean( x     = zRWUconow        [sel]
-                                                         , w     = w.wfluxgwconow   [sel]
+                                                         , w     = w.nplant         [sel]
                                                          , na.rm = TRUE
                                                          )#end weighted.mean
                szpft$i.npp        [m,d,p] = weighted.mean( x     = nppconow         [sel]
@@ -1948,6 +1961,10 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
                szpft$i.mco        [m,d,p] = weighted.mean( x     = mcostconow       [sel]
                                                          , w     = w.nplant         [sel]
                                                          , na.rm = TRUE
+                                                         )#end weighted.mean
+               szpft$ddbhdt      [m,d,p] = weighted.mean( x = ddbhdtconow           [sel]
+                                                        , w = w.nplant              [sel]
+                                                        , na.rm = TRUE
                                                          )#end weighted.mean
                szpft$i.cba        [m,d,p] = weighted.mean( x     = cbaconow         [sel]
                                                          , w     = w.nplant         [sel]
@@ -2255,6 +2272,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
       emean$cbarel          [m] = szpft$cbarel         [m,ndbh+1,npft+1]
       emean$nplant          [m] = szpft$nplant         [m,ndbh+1,npft+1]
       emean$lai             [m] = szpft$lai            [m,ndbh+1,npft+1]
+      emean$ddbhdt          [m] = szpft$ddbhdt         [m,ndbh+1,npft+1]
       emean$wai             [m] = szpft$wai            [m,ndbh+1,npft+1]
       emean$tai             [m] = szpft$tai            [m,ndbh+1,npft+1]
       emean$agb             [m] = szpft$agb            [m,ndbh+1,npft+1]
@@ -2589,6 +2607,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5){
          cohort$pft          [[clab]] = pftconow
          cohort$nplant       [[clab]] = nplantconow * areaconow
          cohort$height       [[clab]] = heightconow
+         cohort$ddbhdt       [[clab]] = ddbhdtconow
          cohort$delta_DBH    [[clab]] = delta_DBHconow
          cohort$ba           [[clab]] = nplantconow * baconow * areaconow
          cohort$agb          [[clab]] = agbconow

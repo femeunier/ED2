@@ -19,6 +19,19 @@ tspftdbh[[n]]     = list( vnam     = "agb"
                         , scsout   = TRUE
                         )#end list
 n                 = n + 1
+tspftdbh[[n]]     = list( vnam     = "leaf.temp"
+                          , desc     = "Leaf temperature"
+                          , e.unit   = untab$degC
+                          , i.unit   = untab$degC
+                          , plog     = FALSE
+                          , pft      = TRUE
+                          , pftdbh   = TRUE
+                          , sas      = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = TRUE
+                          )#end list
+n                 = n + 1
 tspftdbh[[n]]     = list( vnam     = "biomass"
                         , desc     = "Total biomass"
                         , e.unit   = untab$kgcom2
@@ -335,7 +348,7 @@ tspftdbh[[n]]     = list( vnam     = "nplant"
                         , desc     = "Plant density"
                         , e.unit   = untab$plom2
                         , i.unit   = untab$plom2
-                        , plog     = TRUE
+                        , plog     = FALSE
                         , pft      = TRUE
                         , pftdbh   = TRUE
                         , sas      = FALSE
@@ -369,6 +382,19 @@ tspftdbh[[n]]     = list( vnam     = "leaf.gsw"
                         , stack    = FALSE
                         , scsout   = TRUE
                         )#end list
+n                 = n + 1
+tspftdbh[[n]]     = list( vnam     = "ddbhdt"
+                          , desc     = "ddbh_dt"
+                          , e.unit   = untab$cmyear
+                          , i.unit   = untab$cmyear
+                          , plog     = FALSE
+                          , pft      = FALSE
+                          , pftdbh   = FALSE
+                          , sas      = FALSE
+                          , bar.plot = FALSE
+                          , stack    = FALSE
+                          , scsout   = FALSE
+)#end list
 n                 = n + 1
 tspftdbh[[n]]     = list( vnam     = "leaf.gbw"
                         , desc     = "Leaf boundary layer conductance"

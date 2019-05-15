@@ -2,14 +2,29 @@
 #==========================================================================================#
 #     Create the monthly mean structure to be filled by plot_monthly.r                     #
 #------------------------------------------------------------------------------------------#
-create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
+create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min,remote=FALSE){
 
    #----- Read the first HDF5 to grab some simulation-dependent dimensions. ---------------#
    cyear        = sprintf("%4.4i",yeara )
    cmonth       = sprintf("%2.2i",montha)
-   h5first      = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5"    ,sep="")
-   h5first.bz2  = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.bz2",sep="")
-   h5first.gz   = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.gz" ,sep="")
+   
+   if (remote) {
+     tmp_dir = '/home/femeunier/Documents/tmp/ed_remote/'
+     h5first      = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5"    ,sep="")
+     temp_file <- file.path('/home/femeunier/Documents/tmp/ed_remote/',basename(h5first))
+     args <- c('-avz',h5first,dirname(temp_file))
+     system2('rsync',shQuote(args),stdout = TRUE, stderr = TRUE)
+     
+     h5first      = paste(tmp_dir,basename(inpref),"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5"    ,sep="")
+     h5first.bz2  = paste(tmp_dir,basename(inpref),"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.bz2",sep="")
+     h5first.gz   = paste(tmp_dir,basename(inpref),"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.gz" ,sep="")
+     
+   } else {
+     h5first      = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5"    ,sep="")
+     h5first.bz2  = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.bz2",sep="")
+     h5first.gz   = paste(inpref,"-Q-",cyear,"-",cmonth,"-00-000000-g01.h5.gz" ,sep="")
+   }
+   
 
    if ( file.exists(h5first) ){
       mymont    = lapply(h5read_opt(h5first),FUN=aperm)
@@ -33,6 +48,10 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
 
    }#end if
    #---------------------------------------------------------------------------------------#
+   
+   if (remote){
+     dummy = file.remove(h5first)
+   }
 
    #---------------------------------------------------------------------------------------#
    #     Start up the list.                                                                #
@@ -303,6 +322,7 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    emean$agb                     = rep(NA,times=ntimes)
    emean$biomass                 = rep(NA,times=ntimes)
    emean$lai                     = rep(NA,times=ntimes)
+   emean$ddbhdt                  = rep(NA,times=ntimes)
    emean$wai                     = rep(NA,times=ntimes)
    emean$tai                     = rep(NA,times=ntimes)
    emean$area                    = rep(NA,times=ntimes)
@@ -440,6 +460,7 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    szpft$agb               = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
    szpft$biomass           = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
    szpft$lai               = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
+   szpft$ddbhdt            = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
    szpft$wai               = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
    szpft$tai               = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
    szpft$ba                = array(data=0 ,dim=c(ntimes,ndbh+1,npft+1))
@@ -819,6 +840,7 @@ create.monthly <<- function(ntimes,montha,yeara,inpref,slz.min){
    cohort$wflux_gw       = list()
    cohort$zRWU           = list()
    cohort$assim.ratio    = list()
+   cohort$ddbhdt         = list()
    cohort$npp            = list()
    cohort$cba            = list()
    cohort$cbamax         = list()
@@ -1035,6 +1057,7 @@ update.monthly <<- function(new.ntimes,old.datum,montha,yeara,inpref,slz.min){
    new.datum$emean$biomass           [idx ] = old.datum$emean$biomass             [sel ]
    new.datum$emean$nplant            [idx ] = old.datum$emean$nplant              [sel ]
    new.datum$emean$lai               [idx ] = old.datum$emean$lai                 [sel ]
+   new.datum$emean$ddbhdt            [idx ] = old.datum$emean$ddbhdt              [sel ]
    new.datum$emean$wai               [idx ] = old.datum$emean$wai                 [sel ]
    new.datum$emean$tai               [idx ] = old.datum$emean$tai                 [sel ]
    new.datum$emean$area              [idx ] = old.datum$emean$area                [sel ]
@@ -1218,6 +1241,7 @@ update.monthly <<- function(new.ntimes,old.datum,montha,yeara,inpref,slz.min){
    new.datum$szpft$agb            [idx,,] = old.datum$szpft$agb             [sel,,]
    new.datum$szpft$biomass        [idx,,] = old.datum$szpft$biomass         [sel,,]
    new.datum$szpft$lai            [idx,,] = old.datum$szpft$lai             [sel,,]
+   new.datum$szpft$ddbhdt         [idx,,] = old.datum$szpft$ddbhdt          [sel,,]
    new.datum$szpft$wai            [idx,,] = old.datum$szpft$wai             [sel,,]
    new.datum$szpft$tai            [idx,,] = old.datum$szpft$tai             [sel,,]
    new.datum$szpft$ba             [idx,,] = old.datum$szpft$ba              [sel,,]

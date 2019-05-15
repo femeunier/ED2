@@ -219,6 +219,7 @@ subroutine copy_nl(copy_type)
                                    , history_dail              & ! intent(out) 
                                    , history_eorq              & ! intent(out)
                                    , growth_resp_scheme        & ! intent(out)
+				   , seasonal_change           & ! intent(out)
                                    , storage_resp_scheme       ! ! intent(out)
    use grid_coms            , only : time                      & ! intent(out)
                                    , centlon                   & ! intent(out)
@@ -459,6 +460,7 @@ subroutine copy_nl(copy_type)
       ustmin                    = nl%ustmin
       
       growth_resp_scheme        = nl%growth_resp_scheme
+      seasonal_change           = nl%seasonal_change
       storage_resp_scheme       = nl%storage_resp_scheme
 
       !----- Print control parameters. ----------------------------------------------------!

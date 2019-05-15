@@ -91,6 +91,7 @@ Module ed_misc_coms
 
    integer :: growth_resp_scheme
    integer :: storage_resp_scheme
+   integer :: seasonal_change
 
    !---------------------------------------------------------------------------------------!
    !    Maximum distance to the current polygon that we still consider the file grid point !

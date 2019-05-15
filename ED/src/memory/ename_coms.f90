@@ -145,6 +145,7 @@ module ename_coms
       integer                                           :: trait_plasticity_scheme
       integer                                           :: growth_resp_scheme
       integer                                           :: storage_resp_scheme
+      integer                                           :: seasonal_change
       real                                              :: rk4_tolerance
       integer                                           :: ibranch_thermo
       integer                                           :: iphysiol
@@ -417,6 +418,7 @@ module ename_coms
       enl%trait_plasticity_scheme   = undef_integer
       enl%growth_resp_scheme        = undef_integer
       enl%storage_resp_scheme       = undef_integer
+      enl%seasonal_change           = undef_integer
       enl%rk4_tolerance             = undef_real
       enl%ibranch_thermo            = undef_integer
       enl%iphysiol                  = undef_integer

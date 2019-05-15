@@ -1158,6 +1158,7 @@ subroutine ed_opspec_misc
                                     , iallom                       & ! intent(in)
                                     , igrass                       & ! intent(in)
                                     , growth_resp_scheme           & ! intent(in)
+                                    , seasonal_change              & ! intent(in)
                                     , storage_resp_scheme          & ! intent(in)
                                     , min_site_area                & ! ! intent(in)
                                     , flag_EDRrun                  ! ! intent(in)
@@ -1598,6 +1599,14 @@ end do
       write (reason,fmt='(a,1x,i4,a)')                                                     &
          'Invalid GROWTH_RESP_SCHEME, it must be 0 or 1. Yours is set to'                  &
         ,growth_resp_scheme,'...'
+      call opspec_fatal(reason,'opspec_misc')
+      ifaterr = ifaterr +1
+   end if
+
+   if (seasonal_change < 0 .or. seasonal_change > 1) then
+      write (reason,fmt='(a,1x,i4,a)')                                                     &
+         'Invalid SEASONAL_CHANGE, it must be 0 or 1. Yours is set to'                  &
+        ,seasonal_change,'...'
       call opspec_fatal(reason,'opspec_misc')
       ifaterr = ifaterr +1
    end if

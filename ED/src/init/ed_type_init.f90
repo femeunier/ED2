@@ -1604,6 +1604,7 @@ subroutine init_ed_poly_vars(cgrid)
       cgrid%fmean_sensible_lc          (ipy) = 0.0
       cgrid%fmean_vapor_lc             (ipy) = 0.0
       cgrid%fmean_transp               (ipy) = 0.0
+      cgrid%fmean_transp_pft         (:,ipy) = 0.0
       cgrid%fmean_intercepted_al       (ipy) = 0.0
       cgrid%fmean_wshed_lg             (ipy) = 0.0
       cgrid%fmean_rshort_w             (ipy) = 0.0

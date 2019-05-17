@@ -56,6 +56,7 @@ module average_utils
       integer                        :: ipa
       integer                        :: ico
       integer                        :: k
+      integer                        :: ipft
       integer                        :: nsoil
       real                           :: site_area_i
       real                           :: poly_area_i
@@ -396,6 +397,15 @@ module average_utils
                   cgrid%fmean_lai           (ipy) = cgrid%fmean_lai            (ipy)       &
                                                   + cpatch%fmean_lai           (ico)       &
                                                   * patch_wgt
+
+
+		 do ipft=1,n_pft
+			 if (cpatch%pft (ico) == ipft) then
+		           cgrid%fmean_transp_pft      (ipft,ipy) = cgrid%fmean_transp_pft     (ipft,ipy)  &
+		                                          	  + cpatch%fmean_transp        (ico)       &
+		                                         	  * patch_wgt
+			 end if
+		 end do
 
 
 		  if (cpatch%pft (ico) == 17) then
@@ -1463,6 +1473,8 @@ module average_utils
          cgrid%fmean_dpcpg           (  ipy) = 0.0
          cgrid%fmean_soil_wetness    (  ipy) = 0.0
          cgrid%fmean_skin_temp       (  ipy) = 0.0
+
+         cgrid%fmean_transp_pft      (:,ipy) = 0.0
 
          siteloop: do isi = 1,cpoly%nsites
             csite => cpoly%site(isi)

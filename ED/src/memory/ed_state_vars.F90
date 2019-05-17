@@ -2472,6 +2472,7 @@ module ed_state_vars
       real,pointer,dimension(:) :: fmean_sensible_lc      !<Sensible heat       [      W/m2]
       real,pointer,dimension(:) :: fmean_vapor_lc         !<Leaf evaporation    [   kg/m2/s]
       real,pointer,dimension(:) :: fmean_transp           !<Leaf transpiration  [   kg/m2/s]
+      real,pointer,dimension(:,:) :: fmean_transp_pft     !<Leaf transp.      [  kg/m2g/s]
       real,pointer,dimension(:) :: fmean_intercepted_al   !<Leaf interception   [   kg/m2/s]
       real,pointer,dimension(:) :: fmean_wshed_lg         !<Leaf shedding       [   kg/m2/s]
       real,pointer,dimension(:) :: fmean_rshort_w         !<Abs. SW (Wood)      [      W/m2]
@@ -3379,6 +3380,7 @@ module ed_state_vars
       allocate(cgrid%fmean_sensible_lc          (                    npolygons))
       allocate(cgrid%fmean_vapor_lc             (                    npolygons))
       allocate(cgrid%fmean_transp               (                    npolygons))
+      allocate(cgrid%fmean_transp_pft           (              n_pft,npolygons))
       allocate(cgrid%fmean_intercepted_al       (                    npolygons))
       allocate(cgrid%fmean_wshed_lg             (                    npolygons))
       allocate(cgrid%fmean_rshort_w             (                    npolygons))
@@ -5382,6 +5384,7 @@ module ed_state_vars
       nullify(cgrid%fmean_sensible_lc       )
       nullify(cgrid%fmean_vapor_lc          )
       nullify(cgrid%fmean_transp            )
+      nullify(cgrid%fmean_transp_pft        )
       nullify(cgrid%fmean_intercepted_al    )
       nullify(cgrid%fmean_wshed_lg          )
       nullify(cgrid%fmean_rshort_w          )
@@ -11516,6 +11519,7 @@ module ed_state_vars
       call filltab_edtype_p11mmean(cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
       call filltab_edtype_m11     (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
       call filltab_edtype_p12     (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
+      call filltab_edtype_f12     (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
       call filltab_edtype_m12     (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
       call filltab_edtype_p19     (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
       call filltab_edtype_p146    (cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
@@ -17430,6 +17434,73 @@ module ed_state_vars
    !=======================================================================================!
 
 
+   !=======================================================================================!
+   !=======================================================================================!
+   !  SUBROUTINE: FILLTAB_EDTYPE_F12
+   !> \brief  This routine will fill the pointer table with the polygon-level variables
+   !> (edtype) that have two dimensions (n_pft,npolygons) and are real (type 12).
+   !---------------------------------------------------------------------------------------!
+   subroutine filltab_edtype_f12(cgrid,igr,init,var_len,var_len_global,max_ptrs,nvar)
+      use ed_var_tables, only : vtable_edio_r  & ! sub-routine
+                              , metadata_edio  ! ! sub-routine
+
+      implicit none
+      !----- Arguments. -------------------------------------------------------------------!
+      type(edtype)          , target        :: cgrid
+      integer               , intent(in)    :: init
+      integer               , intent(in)    :: igr
+      integer               , intent(in)    :: var_len
+      integer               , intent(in)    :: max_ptrs
+      integer               , intent(in)    :: var_len_global
+      integer               , intent(inout) :: nvar
+      !----- Local variables. -------------------------------------------------------------!
+      integer                               :: npts
+      character(len=str_len)                :: fast_keys
+      character(len=str_len)                :: dail_keys
+      character(len=str_len)                :: eorq_keys
+      !------------------------------------------------------------------------------------!
+
+
+
+      !------------------------------------------------------------------------------------!
+      !      Decide whether to write fast, daily, and monthly mean variables to history.   !
+      !------------------------------------------------------------------------------------!
+      if (history_fast) then
+         fast_keys = 'hist:anal:opti'
+      else
+         fast_keys = 'anal:opti'
+      end if
+      if (history_dail) then
+         dail_keys = 'hist:dail'
+      else
+         dail_keys = 'dail'
+      end if
+      if (history_eorq) then
+         eorq_keys = 'hist:mont:dcyc'
+      else
+         eorq_keys = 'mont:dcyc'
+      end if
+      !------------------------------------------------------------------------------------!
+
+      !------------------------------------------------------------------------------------!
+      !------------------------------------------------------------------------------------!
+      !     This is the 2-D block, with soil layers.  All variables must have the number   !
+      ! of points defined by npts.                                                         !
+      !------------------------------------------------------------------------------------!
+
+      if (associated(cgrid%fmean_transp_pft        )) then
+         nvar = nvar + 1
+         call vtable_edio_r(npts,cgrid%fmean_transp_pft                                    &
+                           ,nvar,igr,init,cgrid%pyglob_id,var_len,var_len_global,max_ptrs  &
+                           ,'FMEAN_TRANSP_PFT         :14:hist:anal:dail:opti')
+         call metadata_edio(nvar,igr,'Leaf area index'                                     &
+                           ,'[kgw/m2/s]','(n_pft,ipoly)')
+      end if
+
+      return     
+   end subroutine filltab_edtype_f12
+   !=======================================================================================!
+   !=======================================================================================!
 
 
 

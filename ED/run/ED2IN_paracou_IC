@@ -43,7 +43,7 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMONTHZ  = 01    ! Month
    NL%IDATEZ   = 01    ! Day
-   NL%IYEARZ   = 2500  ! Year
+   NL%IYEARZ   = 1600  ! Year
    NL%ITIMEZ   = 0000  ! UTC
    !---------------------------------------------------------------------------------------!
 
@@ -202,7 +202,7 @@ $ED_NL
    NL%IMOUTPUT  =  0
    NL%IQOUTPUT  =  3
    NL%IYOUTPUT  =  0
-   NL%ITOUTPUT  =  0
+   NL%ITOUTPUT  =  3
    NL%IOOUTPUT  =  0
    NL%ISOUTPUT  =  3
    !---------------------------------------------------------------------------------------!
@@ -359,7 +359,7 @@ $ED_NL
    !
    !
    !---------------------------------------------------------------------------------------!
-   NL%IED_INIT_MODE   = 3
+   NL%IED_INIT_MODE   = 6
    !---------------------------------------------------------------------------------------!
 
 
@@ -387,7 +387,8 @@ $ED_NL
    !              from the same simulation.                                                !
    !---------------------------------------------------------------------------------------!
 
-   NL%SFILIN   = '/home/femeunier/Documents/R/ED2_Support_Files/pss+css_processing/sites/BCI/BCI_default.lat5.000lon-53.000'
+   NL%SFILIN   = '/home/femeunier/Documents/R/ED2_Support_Files/pss+css_processing/sites/Paracou/Paracou_extrapolated.lat5.000lon-53.000'
+   !NL%SFILIN   = './histo/paracou'
    !---------------------------------------------------------------------------------------!
 
 
@@ -404,8 +405,8 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%ITIMEH   = 0000   ! UTC
    NL%IDATEH   = 01     ! Day
-   NL%IMONTHH  = 12     ! Month
-   NL%IYEARH   = 1518   ! Year
+   NL%IMONTHH  = 02     ! Month
+   NL%IYEARH   = 1500   ! Year
    !---------------------------------------------------------------------------------------!
 
 
@@ -1488,7 +1489,7 @@ $ED_NL
    !               simulation.                                                             !
    ! PHENPATH   -- path and prefix of the prescribed phenology data.                       !
    !---------------------------------------------------------------------------------------!
-   NL%IEDCNFGF   = ''
+   NL%IEDCNFGF   = './config.xml'
    NL%EVENT_FILE = ''
    !---------------------------------------------------------------------------------------!
 
@@ -1601,7 +1602,7 @@ $ED_NL
    !                       -2. Same as 2 but leaf/wood heat capacity does not change       !
    !                       -3. Same as 3 but leaf/wood heat capacity does not change       !
    !---------------------------------------------------------------------------------------!
-   NL%PLANT_HYDRO_SCHEME   = 1
+   NL%PLANT_HYDRO_SCHEME   = 3
    !---------------------------------------------------------------------------------------!
 
    !---------------------------------------------------------------------------------------!
@@ -1643,7 +1644,7 @@ $ED_NL
    NL%ISTOMATA_SCHEME = 0
    !---------------------------------------------------------------------------------------!
 
- !---------------------------------------------------------------------------------------!
+   !---------------------------------------------------------------------------------------!
    ! ISTRUCT_GROWTH_SCHEME -- Different methods to perform structural growth.              !
    !                          0. Use all bstorage (default by ED2.2 and before)            !
    !                          1. Reserve bstorage to reflush the whole canopy and          !
@@ -1652,6 +1653,16 @@ $ED_NL
    !                             new leaves when growing season comes                      !
    !---------------------------------------------------------------------------------------!
    NL%ISTRUCT_GROWTH_SCHEME = 0
+   !---------------------------------------------------------------------------------------!
+
+   !---------------------------------------------------------------------------------------!
+   ! SEASONAL_CHANGE -- This flag indicates if seasonal change of tlp and Vcmax are        !
+   !                          accounted for.						   !
+   !                                                                                       !
+   !        0 - ED Default. No seasonal change                                             !
+   !        1 - Sesonal change accounted for                                               !
+   !---------------------------------------------------------------------------------------!
+   NL%SEASONAL_CHANGE = 1
    !---------------------------------------------------------------------------------------!
 
 

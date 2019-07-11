@@ -52,6 +52,8 @@ module average_utils
       type(patchtype)      , pointer :: cpatch
       real, dimension(nzg)           :: cgrid_fmean_soil_hcap
       real, dimension(n_pft)         :: poly_transp_pft
+      real, dimension(n_pft)         :: poly_nplant_pft
+      real, dimension(n_pft)         :: poly_lai_pft
       integer                        :: ipy
       integer                        :: isi
       integer                        :: ipa
@@ -124,6 +126,8 @@ module average_utils
          poly_nplant              = 0.0
          poly_transp              = 0.0
          poly_transp_pft      (:) = 0.0
+         poly_nplant_pft      (:) = 0.0
+         poly_lai_pft         (:) = 0.0
          poly_transp_liana        = 0.0
          poly_transp_tree         = 0.0
          cgrid_fmean_soil_hcap(:) = 0.0
@@ -179,6 +183,8 @@ module average_utils
 		  do ipft=1,n_pft
                       if (cpatch%pft (ico) == ipft) then
 			 poly_transp_pft (ipft) = poly_transp_pft (ipft) + cpatch%wflux_gw (ico) *patch_wgt
+			 poly_nplant_pft (ipft) = poly_nplant_pft (ipft) + cpatch%nplant   (ico) *patch_wgt
+			 poly_lai_pft    (ipft) = poly_lai_pft (ipft)    + cpatch%lai      (ico) *patch_wgt
 		      end if
                   end do
                   !------------------------------------------------------------------------!
@@ -427,6 +433,23 @@ module average_utils
 		                                          	  + cpatch%fmean_zRWU          (ico)       &
                                                                   * cpatch%wflux_gw            (ico)       &
 		                                          	  * patch_wgt
+
+			  cgrid%fmean_fs_open_pft    (ipft,ipy) = cgrid%fmean_fs_open_pft    (ipft,ipy)    &
+                                                  		+ cpatch%fmean_fs_open       (ico)         &
+                                                  		* cpatch%lai                 (ico)         &
+                                                  		* patch_wgt
+
+		          cgrid%fmean_leaf_temp_pft  (ipft,ipy) = cgrid%fmean_leaf_temp_pft  (ipft,ipy)    &
+		                                         	  + cpatch%fmean_leaf_temp     (ico)       &
+                                                  		  * cpatch%lai                 (ico)       & 
+		                                         	  * patch_wgt
+
+		          cgrid%fmean_leaf_psi_pft  (ipft,ipy)  = cgrid%fmean_leaf_psi_pft    (ipft,ipy)   &
+		                                          	  + cpatch%fmean_leaf_psi      (ico)       &
+                                                  		  * cpatch%lai                 (ico)       & 
+		                                         	  * patch_wgt
+
+
 			 end if
 		 end do
 
@@ -841,6 +864,24 @@ module average_utils
               else
 		 cgrid%fmean_zRWU_pft  (ipft,ipy) = 0.0
 	      end if
+
+              if (poly_nplant_pft (ipft) > 0.) then
+
+              else
+
+	      end if
+
+
+              if (poly_lai_pft (ipft) > 0.) then
+	         cgrid%fmean_fs_open_pft  (ipft,ipy) = cgrid%fmean_fs_open_pft  (ipft,ipy) / poly_lai_pft (ipft)
+	         cgrid%fmean_leaf_temp_pft(ipft,ipy) = cgrid%fmean_leaf_temp_pft(ipft,ipy) / poly_lai_pft (ipft)
+	         cgrid%fmean_leaf_psi_pft (ipft,ipy) = cgrid%fmean_leaf_psi_pft (ipft,ipy) / poly_lai_pft (ipft)
+              else
+		 cgrid%fmean_fs_open_pft  (ipft,ipy) = 0.0
+		 cgrid%fmean_leaf_temp_pft(ipft,ipy) = 0.0
+		 cgrid%fmean_leaf_psi_pft (ipft,ipy) = 0.0
+	      end if
+
          end do
 
          !---------------------------------------------------------------------------------!
@@ -1510,6 +1551,10 @@ module average_utils
          cgrid%fmean_gpp_pft         (:,ipy) = 0.0
          cgrid%fmean_npp_pft         (:,ipy) = 0.0
          cgrid%fmean_zRWU_pft        (:,ipy) = 0.0
+	 cgrid%fmean_fs_open_pft     (:,ipy) = 0.0
+	 cgrid%fmean_leaf_temp_pft   (:,ipy) = 0.0
+	 cgrid%fmean_leaf_psi_pft    (:,ipy) = 0.0
+
 
          siteloop: do isi = 1,cpoly%nsites
             csite => cpoly%site(isi)

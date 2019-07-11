@@ -2476,6 +2476,10 @@ module ed_state_vars
       real,pointer,dimension(:,:) :: fmean_gpp_pft        !<GPP                 [ kgC/m2/yr]
       real,pointer,dimension(:,:) :: fmean_npp_pft        !<NPP                 [ kgC/m2/yr]
       real,pointer,dimension(:,:) :: fmean_zRWU_pft       !<zRWU                [         m]
+      real,pointer,dimension(:,:) :: fmean_fs_open_pft    !<Net stress factor   [        --]
+      real,pointer,dimension(:,:) :: fmean_leaf_temp_pft  !<Leaf temperature    [         K]
+      real,pointer,dimension(:,:) :: fmean_leaf_psi_pft   !<&Psi; leaf          [         m]
+
       real,pointer,dimension(:) :: fmean_intercepted_al   !<Leaf interception   [   kg/m2/s]
       real,pointer,dimension(:) :: fmean_wshed_lg         !<Leaf shedding       [   kg/m2/s]
       real,pointer,dimension(:) :: fmean_rshort_w         !<Abs. SW (Wood)      [      W/m2]
@@ -3385,6 +3389,9 @@ module ed_state_vars
       allocate(cgrid%fmean_transp               (                    npolygons))
       allocate(cgrid%fmean_transp_pft           (              n_pft,npolygons))
       allocate(cgrid%fmean_gpp_pft              (              n_pft,npolygons))
+      allocate(cgrid%fmean_fs_open_pft          (              n_pft,npolygons))
+      allocate(cgrid%fmean_leaf_temp_pft        (              n_pft,npolygons))
+      allocate(cgrid%fmean_leaf_psi_pft         (              n_pft,npolygons))
       allocate(cgrid%fmean_npp_pft              (              n_pft,npolygons))
       allocate(cgrid%fmean_zRWU_pft             (              n_pft,npolygons))
       allocate(cgrid%fmean_intercepted_al       (                    npolygons))
@@ -5392,6 +5399,9 @@ module ed_state_vars
       nullify(cgrid%fmean_transp            )
       nullify(cgrid%fmean_transp_pft        )
       nullify(cgrid%fmean_gpp_pft           )
+      nullify(cgrid%fmean_fs_open_pft       )
+      nullify(cgrid%fmean_leaf_temp_pft     )
+      nullify(cgrid%fmean_leaf_psi_pft      )
       nullify(cgrid%fmean_npp_pft           )
       nullify(cgrid%fmean_zRWU_pft          )
       nullify(cgrid%fmean_intercepted_al    )
@@ -17523,6 +17533,34 @@ module ed_state_vars
          call metadata_edio(nvar,igr,'NPP'                                                 &
                            ,'[kgC/m2/yr]','(n_pft,ipoly)')
       end if
+
+      if (associated(cgrid%fmean_fs_open_pft      )) then
+         nvar = nvar + 1
+         call vtable_edio_r(npts,cgrid%fmean_fs_open_pft                                   &
+                           ,nvar,igr,init,cgrid%pyglob_id,var_len,var_len_global,max_ptrs  &
+                           ,'FMEAN_FS_OPEN_PFT         :14:hist:anal:dail:opti')
+         call metadata_edio(nvar,igr,'FS_OPEN'                                             &
+                           ,'[-]','(n_pft,ipoly)')
+      end if
+
+      if (associated(cgrid%fmean_leaf_temp_pft        )) then
+         nvar = nvar + 1
+         call vtable_edio_r(npts,cgrid%fmean_leaf_temp_pft                                 &
+                           ,nvar,igr,init,cgrid%pyglob_id,var_len,var_len_global,max_ptrs  &
+                           ,'FMEAN_LEAF_TEMP_PFT         :14:hist:anal:dail:opti')
+         call metadata_edio(nvar,igr,'NPP'                                                 &
+                           ,'[K]','(n_pft,ipoly)')
+      end if
+
+      if (associated(cgrid%fmean_leaf_psi_pft        )) then
+         nvar = nvar + 1
+         call vtable_edio_r(npts,cgrid%fmean_leaf_psi_pft                                  &
+                           ,nvar,igr,init,cgrid%pyglob_id,var_len,var_len_global,max_ptrs  &
+                           ,'FMEAN_LEAF_PSI_PFT         :14:hist:anal:dail:opti')
+         call metadata_edio(nvar,igr,'NPP'                                                 &
+                           ,'[m]','(n_pft,ipoly)')
+      end if
+
 
       if (associated(cgrid%fmean_zRWU_pft        )) then
          nvar = nvar + 1

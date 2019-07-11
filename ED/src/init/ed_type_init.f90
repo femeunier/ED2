@@ -1608,6 +1608,10 @@ subroutine init_ed_poly_vars(cgrid)
       cgrid%fmean_gpp_pft            (:,ipy) = 0.0
       cgrid%fmean_npp_pft            (:,ipy) = 0.0
       cgrid%fmean_zRWU_pft           (:,ipy) = 0.0
+      cgrid%fmean_leaf_temp_pft      (:,ipy) = 0.0
+      cgrid%fmean_leaf_psi_pft       (:,ipy) = 0.0
+      cgrid%fmean_fs_open_pft        (:,ipy) = 0.0
+
       cgrid%fmean_intercepted_al       (ipy) = 0.0
       cgrid%fmean_wshed_lg             (ipy) = 0.0
       cgrid%fmean_rshort_w             (ipy) = 0.0

@@ -2722,7 +2722,7 @@ read.q.files <<- function(datum,ntimes,tresume=1,sasmonth=5,remote=FALSE){
        paconow <- cohort$ipa[[itime]]
        pft_uni <- unique(pftconow)
 
-       for (ipft in seq(1,length(pft_uni)){
+       for (ipft in seq(1,length(pft_uni))){
          pos <- (pftconow == pft_uni[ipft] & paconow == ipa)
          if (any(pos)){
            temp_maxh[ipa,pft_uni[ipft],itime]     <- max(hiteconow[pos])

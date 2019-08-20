@@ -27,8 +27,8 @@ subroutine load_ed_ecosystem_params()
    integer :: p
    !---------------------------------------------------------------------------------------!
 
-
-
+   ! Test
+   
    !---------------------------------------------------------------------------------------!
    !      Main table of Plant functional types.  If you add some PFT, please make sure     !
    ! that you assign values for all PFT-dependent variables.  Below is a summary table of  !

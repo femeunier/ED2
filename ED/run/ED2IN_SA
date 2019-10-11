@@ -91,10 +91,10 @@ $ED_NL
       ! ED_REG_LONMAX  -- Easternmost point of each region.                                !
       !------------------------------------------------------------------------------------!
       NL%GRID_RES       =    1.0
-      NL%ED_REG_LATMIN  =  -10.0 , -7.5, 10.0,  -6.0
-      NL%ED_REG_LATMAX  =   10.0 , -3.5, 15.0,  -1.0
-      NL%ED_REG_LONMIN  =   5.0 ,-58.5, 70.0, -63.0
-      NL%ED_REG_LONMAX  =   25.0 ,-54.5, 35.0, -53.0
+      NL%ED_REG_LATMIN  =    3
+      NL%ED_REG_LATMAX  =    5
+      NL%ED_REG_LONMIN  =   -55
+      NL%ED_REG_LONMAX  =   -53
       !------------------------------------------------------------------------------------!
 
 
@@ -157,10 +157,10 @@ $ED_NL
    ! POI_RES -- grid resolution of each POI (degrees).  This is used only to define the    !
    !            soil types                                                                 !
    !---------------------------------------------------------------------------------------!
-    NL%N_POI    =    1
-    NL%POI_LAT  =  5 !2.5
-    NL%POI_LON  =  -53  !16.5
-    NL%POI_RES  = 1.00   
+    NL%N_POI    =   1
+    NL%POI_LAT  =  10
+    NL%POI_LON  = -82
+    NL%POI_RES  =   1   
    !---------------------------------------------------------------------------------------!
 
 
@@ -305,8 +305,8 @@ $ED_NL
    ! SFILOUT -- Path and prefix for history files.                                         !
    !---------------------------------------------------------------------------------------!
 
-   NL%FFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/analy/paracou' ! To avoid files beginning with dash
-   NL%SFILOUT = '/data/gent/vo/000/gvo00074/felicien/ED2_outputs/histo/paracou'
+   NL%FFILOUT = './analy/paracou' ! To avoid files beginning with dash
+   NL%SFILOUT = './histo/paracou'
 
    !---------------------------------------------------------------------------------------!
 
@@ -555,12 +555,12 @@ $ED_NL
    !                      soil temperature and moisture.                                   !
    !  SOILDEPTH_DB     -- Dataset in case you want to read in soil depth information.      !
    !---------------------------------------------------------------------------------------!
-   NL%VEG_DATABASE      = '/user/data/gent/gvo000/gvo00074/ED_common_data/veg_oge/OGE2_'
-   NL%SOIL_DATABASE     = '/user/data/gent/gvo000/gvo00074/ED_common_data/soils/FAO/FAO_'
+   NL%VEG_DATABASE     = '/home/femeunier/Documents/raw_inputED/OGE2/OGE2_'
+   NL%SOIL_DATABASE    = '/home/femeunier/Documents/raw_inputED/FAO/FAO_'
    NL%LU_DATABASE       = ''
    NL%PLANTATION_FILE   = ''
-   NL%THSUMS_DATABASE   = '/user/data/gent/gvo000/gvo00074/ED_common_data/ed_inputs/'
-   NL%ED_MET_DRIVER_DB  = '/user/data/gent/gvo000/gvo00074/ED_common_data/met/Paracou/Paracou_HEADER'
+   NL%THSUMS_DATABASE   = '/home/femeunier/Documents/raw_inputED/thermal_sums/'
+   NL%ED_MET_DRIVER_DB  = '/home/femeunier/Documents/data/met/WATCH/WFDEI_SOUTHAM_GPCC_HEADER'
    NL%SOILSTATE_DB      = ''
    NL%SOILDEPTH_DB      = ''
    !---------------------------------------------------------------------------------------!
@@ -1304,7 +1304,7 @@ $ED_NL
    NL%MAXSITE        =     1
    NL%MAXPATCH       =    36
    NL%MAXCOHORT      =    40
-   NL%MIN_SITE_AREA  = 0.005
+   NL%MIN_SITE_AREA  = 0.0001
    NL%MIN_PATCH_AREA = 0.005 ! This number is fine for this particular site, but always
                              !   make sure MIN_PATCH_AREA is smaller than the relative size
                              !   of a single plot.  This could be too large in case you had
@@ -1444,8 +1444,8 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMETTYPE    = 1
    NL%ISHUFFLE    = 0
-   NL%METCYC1     = 2004 ! This should always be the first and last year of the met driver
-   NL%METCYCF     = 2016 !    I think you are using the data I sent for 2004-2012, right?
+   NL%METCYC1     = 2010 ! This should always be the first and last year of the met driver
+   NL%METCYCF     = 2010 !    I think you are using the data I sent for 2004-2012, right?
    NL%IMETAVG     = 1    ! If you are using the met driver I prepared, then the averages
                          !    end at the reference time.  This setting is extremely 
                          !    important for any new met driver you eventually use, if
@@ -1489,7 +1489,7 @@ $ED_NL
    !               simulation.                                                             !
    ! PHENPATH   -- path and prefix of the prescribed phenology data.                       !
    !---------------------------------------------------------------------------------------!
-   NL%IEDCNFGF   = 'config.xml'
+   NL%IEDCNFGF   = ''
    NL%EVENT_FILE = ''
    !---------------------------------------------------------------------------------------!
 
@@ -1644,7 +1644,7 @@ $ED_NL
    NL%ISTOMATA_SCHEME = 0
    !---------------------------------------------------------------------------------------!
 
-   !---------------------------------------------------------------------------------------!
+ !---------------------------------------------------------------------------------------!
    ! ISTRUCT_GROWTH_SCHEME -- Different methods to perform structural growth.              !
    !                          0. Use all bstorage (default by ED2.2 and before)            !
    !                          1. Reserve bstorage to reflush the whole canopy and          !

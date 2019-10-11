@@ -3297,7 +3297,27 @@ end subroutine init_pft_alloc_params
 
 
 
+subroutine recalculate_identities
 
+   use pft_coms     , only : b1Ht    & ! intent(in)
+      , b2Ht           & ! intent(in)
+      , dbh_crit       & ! intent(in)
+      , hgt_min       & ! intent(in)
+      , hgt_max       & ! intent(in)
+      , min_dbh        ! ! intent(out)
+   use allometry    , only : h2dbh                 ! ! function
+   use ed_max_dims  , only : n_pft                 ! ! intent(in)
+
+   implicit none
+   !----- Local variables. ----------------------------------------------------------------!
+   integer                           :: ipft
+
+   do ipft=1,n_pft
+      min_dbh    (ipft) = h2dbh(hgt_min(ipft),ipft)
+      dbh_crit   (ipft) = h2dbh(hgt_max(ipft),ipft)
+   end do
+
+end subroutine recalculate_identities
 
 
 !==========================================================================================!

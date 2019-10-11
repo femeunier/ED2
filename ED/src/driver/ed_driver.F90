@@ -95,7 +95,8 @@ subroutine ed_driver()
 #endif
    !---------------------------------------------------------------------------------------!
 
-
+   write (unit=*,fmt='(a)') ' [+] Re-calculate some parameters ...'
+   call recalculate_identities()
 
    !---------------------------------------------------------------------------------------!
    !      Allocate soil grid arrays.                                                       !

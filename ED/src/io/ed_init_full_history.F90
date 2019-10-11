@@ -4315,6 +4315,10 @@ subroutine fill_history_patch(cpatch,paco_index,ncohorts_global)
    memdims (1) = int(cpatch%ncohorts,8)
    memsize (1) = int(cpatch%ncohorts,8)
    memoffs (1) = 0_8
+
+
+   print*,ncohorts_global
+  
    call hdf_getslab_i(cpatch%pft                                                           &
                      ,'PFT                       ',dsetrank,iparallel,.true. ,foundvar)
    call hdf_getslab_i(cpatch%phenology_status                                              &

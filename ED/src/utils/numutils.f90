@@ -273,7 +273,7 @@ end subroutine cumsum
 ! Press, W. H., S. A. Teukolsky, W. T. Vetterling, B. P. Flannery: 1992. Numerical recipes !
 !    in Fortran 77.  Cambridge University Press.                                           !
 !------------------------------------------------------------------------------------------!
-subroutine lisys_solver8(nsiz,AA,Y,X,sing)
+subroutine old_lisys_solver8(nsiz,AA,Y,X,sing)
    implicit none
    !----- Arguments. ----------------------------------------------------------------------!
    integer                           , intent(in)  :: nsiz  ! matrix and vector size
@@ -366,7 +366,7 @@ subroutine lisys_solver8(nsiz,AA,Y,X,sing)
    end do backsubloop
 
    return
-end subroutine lisys_solver8
+end subroutine old_lisys_solver8
 !==========================================================================================!
 !==========================================================================================!
 
@@ -530,4 +530,61 @@ real function dist_gc(slons,slonf,slats,slatf)
 end function dist_gc
 !==========================================================================================!
 !==========================================================================================!
+
+
+
+
+
+!==========================================================================================!
+!==========================================================================================!
+!     This subroutine is the double precision version of the linear system solver above.   !
+! It will solve the linear system AA . X = Y for given AA and Y, using the Gaussian        !
+! elimination method with partial pivoting and back-substitution.  This subroutine is      !
+!==========================================================================================!
+!==========================================================================================!
+
+subroutine lisys_solver8(nsiz,AA,Y,X,sing)
+   implicit none
+   !----- Arguments. ----------------------------------------------------------------------!
+   integer                           , intent(in)  :: nsiz  ! matrix and vector size
+   real(kind=8), dimension(nsiz,nsiz), intent(in)  :: AA    ! matrix
+   real(kind=8), dimension(nsiz)     , intent(in)  :: Y     ! right-hand side vector
+   real(kind=8), dimension(nsiz)     , intent(out) :: X     ! unknown vector
+   logical                           , intent(out) :: sing  ! The matrix was singular [T|F]
+
+   !----- Local variables. ----------------------------------------------------------------!
+   real(kind=8), dimension(nsiz,nsiz)  :: A    ! matrix
+   real(kind=8), dimension(nsiz)       :: B     ! right-hand side vector
+   integer(kind=4)                             :: LDA  ! matrix and vector size
+   integer(kind=4)                             :: N  ! matrix and vector size
+   integer(kind=4)                             :: LDB  ! matrix and vector size
+   integer(kind=4)                             :: NRHS  ! matrix and vector size
+   integer(kind=4)                             :: INFO  ! matrix and vector size
+   integer(kind=4), dimension(nsiz)    :: IPIV
+
+   A = AA 
+   B = Y
+   NRHS = 1
+   LDA = nsiz
+   LDB = nsiz
+   N = nsiz
+
+   CALL DGESV(N, NRHS, A, LDA, IPIV, B, LDB, INFO )
+
+   sing = .FALSE.
+   !if (INFO == 0) then
+   !	sing = .FALSE.
+   !else
+   !	sing = .TRUE.
+   !end if 
+
+   X = B
+
+   return
+end subroutine lisys_solver8
+!==========================================================================================!
+!==========================================================================================!
+
+
+
 
